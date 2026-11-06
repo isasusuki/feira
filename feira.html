@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Feira da Lua · Sistema de Gestão</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'deep-navy': '#0B0F19',
+            'cosmic-purple': '#2A1B3D',
+            'midnight-blue': '#111827',
+            'moon-gold': '#FBBF24',
+            'moon-gold-soft': '#FCD34D',
+            'card-bg': '#121A2C',
+            'border-glow': '#2D3B5E',
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          boxShadow: {
+            'glow-gold': '0 0 15px rgba(251, 191, 36, 0.15)',
+            'glow-purple': '0 0 20px rgba(139, 92, 246, 0.15)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: radial-gradient(circle at 20% 30%, #1A1F2E, #0B0F19 90%);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1A1F2E; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #2D3B5E; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FBBF24; }
+    input, select, textarea {
+      background-color: #0F1625;
+      border: 1px solid #2D3B5E;
+      color: #F3F4F6;
+      transition: all 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #FBBF24;
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+    }
+    input::placeholder { color: #6B7280; }
+    .btn-gold {
+      background: linear-gradient(135deg, #FBBF24, #F59E0B);
+      color: #0B0F19;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.25);
+    }
+    .btn-gold:hover { background: linear-gradient(135deg, #FCD34D, #FBBF24); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4); transform: translateY(-1px); }
+    .btn-gold:active { transform: translateY(1px); }
+    .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-outline-gold { border: 1px solid #FBBF24; color: #FBBF24; background: transparent; transition: all 0.2s ease; }
+    .btn-outline-gold:hover { background: rgba(251, 191, 36, 0.1); border-color: #FCD34D; }
+    .btn-outline-gold:disabled { opacity: 0.4; cursor: not-allowed; }
+    .glass-card {
+      background: rgba(18, 26, 44, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(45, 59, 94, 0.6);
+      border-radius: 1.25rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .glass-card:hover { border-color: rgba(251, 191, 36, 0.3); }
+    .divider-glow { height: 1px; background: linear-gradient(90deg, transparent, #2D3B5E, #FBBF24, #2D3B5E, transparent); opacity: 0.5; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden-view { display: none !important; }
+    .toast { position: fixed; top: 1rem; right: 1rem; z-index: 100; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; max-width: 320px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-ativa { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-concluida { background: rgba(107, 114, 128, 0.15); color: #9CA3AF; border: 1px solid rgba(107, 114, 128, 0.3); }
+  </style>
+</head>
+<body class="min-h-screen text-gray-200 antialiased p-4 md:p-6 lg:p-8 flex items-start justify-center">
+
+  <!-- ============================================================ -->
+  <!-- TELA 1: AUTENTICAÇÃO (Login / Cadastro)                       -->
+  <!-- ============================================================ -->
+  <section id="telaAuth" class="w-full max-w-md mx-auto space-y-5 fade-in">
+    <header class="text-center space-y-2">
+      <div class="flex items-center justify-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
+          <span class="text-2xl">🌙</span>
+        </div>
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
+      </div>
+      <p class="text-sm text-gray-400">Gestão de feiras noturnas</p>
+    </header>
+
+    <div class="flex bg-white/5 rounded-xl p-1 border border-border-glow">
+      <button id="tabLogin" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition">Entrar</button>
+      <button id="tabCadastro" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Criar conta</button>
+    </div>
+
+    <!-- Form Login -->
+    <div id="formLoginBox" class="glass-card p-6 space-y-4">
+      <form id="formLogin" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@email.com" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Senha</label>
+          <input type="password" id="loginSenha" placeholder="••••••••" class="w-full rounded-xl px-3 py-2.5 text-sm" required minlength="6">
+        </div>
+        <div id="erroLogin" class="hidden text-xs rounded-lg px-3 py-2"></div>
+        <button type="submit" id="btnLogin" class="btn-gold w-full py-3 rounded-xl text-sm font-semibold">Entrar</button>
+      </form>
+      <button id="btnEsqueciSenha" class="text-xs text-gray-400 hover:text-moon-gold w-full text-center transition">Esqueci minha senha</button>
+
+      <!-- Dica de credenciais -->
+      <div class="mt-4 pt-4 border-t border-border-glow/50">
+        <p class="text-[11px] text-gray-500 text-center uppercase tracking-wider mb-2">🔑 Credenciais de demonstração</p>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="bg-emerald-500/10 border border-emerald-400/20 rounded-lg p-2 text-center">
+            <p class="text-emerald-300 font-semibold">Feirante</p>
+            <p class="text-gray-400 mt-0.5">E-mail: <span class="text-gray-200 font-mono break-all">feirante@feira.com</span></p>
+            <p class="text-gray-400">Senha: <span class="text-gray-200 font-mono">feira123</span></p>
+          </div>
+          <div class="bg-moon-gold/10 border border-moon-gold/20 rounded-lg p-2 text-center">
+            <p class="text-moon-gold font-semibold">Admin</p>
+            <p class="text-gray-400 mt-0.5">E-mail: <span class="text-gray-200 font-mono break-all">admin@feira.com</span></p>
+            <p class="text-gray-400">Senha: <span class="text-gray-200 font-mono">admin123</span></p>
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-600 text-center mt-2">Senhas começam com "feira" ou "admin"</p>
+      </div>
+    </div>
+
+    <!-- Form Cadastro -->
+    <div id="formCadastroBox" class="hidden-view glass-card p-6 space-y-4">
+      <form id="formCadastro" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Nome completo</label>
+          <input type="text" id="cadNome" placeholder="Seu nome" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">E-mail</label>
+          <input type="email" id="cadEmail" placeholder="seu@email.com" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Senha</label>
+          <input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres" class="w-full rounded-xl px-3 py-2.5 text-sm" required minlength="6">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Tipo de conta</label>
+          <select id="cadTipo" class="w-full rounded-xl px-3 py-2.5 text-sm">
+            <option value="feirante">Feirante (expositor)</option>
+            <option value="admin">Administrador (organização)</option>
+          </select>
+        </div>
+        <div id="erroCadastro" class="hidden text-xs rounded-lg px-3 py-2"></div>
+        <button type="submit" id="btnCadastro" class="btn-gold w-full py-3 rounded-xl text-sm font-semibold">Criar conta</button>
+      </form>
+
+      <div class="mt-4 pt-4 border-t border-border-glow/50">
+        <p class="text-[11px] text-gray-500 text-center">
+          💡 Use uma senha começando com <span class="text-moon-gold font-mono">feira</span> (feirante) ou <span class="text-moon-gold font-mono">admin</span> (administrador) para facilitar a identificação.
+        </p>
+      </div>
+    </div>
+
+    <div id="avisoConexao" class="hidden text-xs rounded-lg px-3 py-2 text-center"></div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- TELA 2: ÁREA DO FEIRANTE                                      -->
+  <!-- ============================================================ -->
+  <section id="telaFeirante" class="hidden-view w-full max-w-6xl mx-auto space-y-6">
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
+          <span class="text-2xl">🌙</span>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
+          <p class="text-xs text-gray-400">Área do Feirante · <span id="nomeFeiranteHeader">—</span></p>
+        </div>
+      </div>
+      <button id="btnLogoutFeirante" class="btn-outline-gold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        Sair
+      </button>
+    </header>
+
+    <div class="glass-card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+      <div class="flex items-center gap-3 flex-1">
+        <span class="text-2xl">🎪</span>
+        <div class="flex-1">
+          <label class="text-xs text-gray-400 block mb-1">Feira selecionada</label>
+          <select id="seletorFeira" class="w-full rounded-lg px-3 py-2 text-sm bg-midnight-blue border-border-glow">
+            <option value="">Carregando...</option>
+          </select>
+        </div>
+      </div>
+      <button id="btnDesistir" class="text-xs px-4 py-2 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-400/30 hover:bg-rose-500/20 transition hidden">
+        Desistir da feira
+      </button>
+    </div>
+
+    <div id="conteudoFeirante" class="hidden-view">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 space-y-5">
+          <div class="glass-card p-5 md:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-gray-400 uppercase tracking-wider">Saldo disponível para acerto</p>
+                <p class="text-4xl md:text-5xl font-bold text-moon-gold mt-1" id="saldoAcertoDisplay">R$ 0,00</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-gray-400">Taxa administrador (10%)</p>
+                <p class="text-2xl font-semibold text-rose-300" id="taxaAdminDisplay">R$ 0,00</p>
+              </div>
+            </div>
+            <div class="divider-glow my-4"></div>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-400">Vendas:</span>
+                <span class="font-semibold text-emerald-300" id="vendasTotaisDisplay">R$ 0,00</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-400">Despesas:</span>
+                <span class="font-semibold text-rose-300" id="despesasTotaisDisplay">R$ 0,00</span>
+              </div>
+              <button id="btnAcertar" class="btn-gold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Liquidar acerto
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-card p-5">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+              <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
+              Movimentações
+            </h2>
+            <div id="listaTransacoes" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+              <p class="text-sm text-gray-500 text-center py-6">Nenhuma movimentação ainda.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div class="glass-card p-5">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+              <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
+              Nova venda
+            </h2>
+            <form id="formVenda" class="space-y-3">
+              <input type="text" id="vendaDescricao" placeholder="Descrição" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+              <div class="grid grid-cols-2 gap-3">
+                <input type="number" id="vendaValor" step="0.01" min="0.01" placeholder="Valor" class="rounded-xl px-3 py-2.5 text-sm" required>
+                <select id="vendaPagamento" class="rounded-xl px-3 py-2.5 text-sm">
+                  <option>Dinheiro</option>
+                  <option>Pix</option>
+                  <option>Cartão</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-gold w-full py-2.5 rounded-xl text-sm font-semibold">Adicionar venda</button>
+            </form>
+          </div>
+
+          <div class="glass-card p-5">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+              <span class="w-1.5 h-5 bg-rose-400 rounded-full"></span>
+              Nova despesa
+            </h2>
+            <form id="formDespesa" class="space-y-3">
+              <input type="text" id="despesaDescricao" placeholder="Descrição" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+              <input type="number" id="despesaValor" step="0.01" min="0.01" placeholder="Valor" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
+              <button type="submit" class="btn-outline-gold w-full py-2.5 rounded-xl text-sm font-semibold">Adicionar despesa</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="avisoSemFeira" class="glass-card p-8 text-center hidden-view">
+      <p class="text-4xl mb-3">🎪</p>
+      <h3 class="text-lg font-semibold text-white mb-1">Nenhuma feira ativa</h3>
+      <p class="text-sm text-gray-400">Aguarde o administrador criar uma nova feira ou inscrever você em uma.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- TELA 3: ÁREA DO ADMIN                                          -->
+  <!-- ============================================================ -->
+  <section id="telaAdmin" class="hidden-view w-full max-w-6xl mx-auto space-y-6">
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
+          <span class="text-2xl">🌙</span>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
+          <p class="text-xs text-gray-400">Admin · <span id="nomeAdminHeader">—</span></p>
+        </div>
+      </div>
+      <button id="btnLogoutAdmin" class="btn-outline-gold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        Sair
+      </button>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="glass-card p-5">
+        <p class="text-xs text-gray-400 uppercase">Feiras criadas</p>
+        <p class="text-3xl font-bold text-moon-gold mt-1" id="adminTotalFeiras">0</p>
+      </div>
+      <div class="glass-card p-5">
+        <p class="text-xs text-gray-400 uppercase">Feirantes cadastrados</p>
+        <p class="text-3xl font-bold text-white mt-1" id="adminTotalFeirantes">0</p>
+      </div>
+      <div class="glass-card p-5">
+        <p class="text-xs text-gray-400 uppercase">Acertos recebidos</p>
+        <p class="text-3xl font-bold text-emerald-300 mt-1" id="adminTotalAcertos">R$ 0,00</p>
+      </div>
+    </div>
+
+    <div class="flex bg-white/5 rounded-xl p-1 border border-border-glow">
+      <button id="tabAdminFeiras" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition">Feiras</button>
+      <button id="tabAdminFeirantes" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Feirantes</button>
+      <button id="tabAdminAcertos" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Acertos</button>
+    </div>
+
+    <div id="painelFeiras" class="space-y-5">
+      <div class="glass-card p-5">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
+          Nova feira
+        </h2>
+        <form id="formFeira" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input type="text" id="feiraNome" placeholder="Nome da feira" class="rounded-xl px-3 py-2.5 text-sm" required>
+          <input type="date" id="feiraData" class="rounded-xl px-3 py-2.5 text-sm" required>
+          <input type="text" id="feiraLocal" placeholder="Local (opcional)" class="rounded-xl px-3 py-2.5 text-sm">
+          <input type="text" id="feiraDescricao" placeholder="Descrição (opcional)" class="rounded-xl px-3 py-2.5 text-sm">
+          <button type="submit" class="btn-gold sm:col-span-2 py-2.5 rounded-xl text-sm font-semibold">Criar feira</button>
+        </form>
+      </div>
+
+      <div class="glass-card p-5">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
+          Feiras cadastradas
+        </h2>
+        <div id="listaFeiras" class="space-y-3">
+          <p class="text-sm text-gray-500 text-center py-6">Nenhuma feira criada ainda.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="painelFeirantes" class="hidden-view">
+      <div class="glass-card p-5">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
+          Feirantes cadastrados
+        </h2>
+        <div id="listaFeirantes" class="space-y-3">
+          <p class="text-sm text-gray-500 text-center py-6">Nenhum feirante cadastrado ainda.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="painelAcertos" class="hidden-view">
+      <div class="glass-card p-5">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
+          Acertos recebidos
+        </h2>
+        <div id="listaAcertos" class="space-y-3">
+          <p class="text-sm text-gray-500 text-center py-6">Nenhum acerto recebido ainda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modalAdicionarFeirante" class="hidden-view fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="glass-card p-6 w-full max-w-md space-y-4 fade-in">
+      <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+        <span class="text-moon-gold">➕</span> Adicionar feirante à feira
+      </h3>
+      <p class="text-xs text-gray-400" id="modalFeiraNome">—</p>
+      <div>
+        <label class="block text-xs font-medium text-gray-400 mb-1">Selecione o feirante</label>
+        <select id="modalSelectFeirante" class="w-full rounded-xl px-3 py-2.5 text-sm">
+          <option value="">Carregando...</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button id="modalCancelar" class="btn-outline-gold flex-1 py-2.5 rounded-xl text-sm">Cancelar</button>
+        <button id="modalConfirmar" class="btn-gold flex-1 py-2.5 rounded-xl text-sm font-semibold">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ============================================================
+    // ⚙️ CONFIGURAÇÃO DO SUPABASE — EDITE APENAS ESTAS 2 LINHAS ⚙️
+    // ------------------------------------------------------------
+    // 1. Acesse supabase.com → seu projeto
+    // 2. Menu lateral: Settings (⚙️) → API
+    // 3. Copie "Project URL"        → cole em SUPABASE_URL
+    // 4. Copie "anon public" (key)  → cole em SUPABASE_ANON_KEY
+    // ============================================================
+    const SUPABASE_URL = 'https://lqxckcfductdxpqrqzql.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_npA9UGv3vYRYLILsKPhgiw_RpPCBRkl';
+    // ============================================================
+
+    (function() {
+      'use strict';
+
+      let supabase = null;
+      let session = null;
+      let currentProfile = null;
+      let feirasCache = [];
+      let feirantesCache = [];
+      let inscricoesCache = [];
+      let feiraAtualId = null;
+      let feiraModalId = null;
+
+      const TAXA_ADMIN = 0.10;
+
+      // ==========================================================
+      // UTILITÁRIOS
+      // ==========================================================
+      function formatarMoeda(v) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+      }
+
+      function toast(msg, tipo = 'info') {
+        const cores = {
+          info: 'bg-blue-500/20 border-blue-400/40 text-blue-200',
+          success: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200',
+          error: 'bg-rose-500/20 border-rose-400/40 text-rose-200',
+          warn: 'bg-moon-gold/20 border-moon-gold/40 text-moon-gold'
+        };
+        const el = document.createElement('div');
+        el.className = `toast border ${cores[tipo] || cores.info}`;
+        el.textContent = msg;
+        document.getElementById('toastContainer').appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
+      }
+
+      function mostrarTela(id) {
+        ['telaAuth', 'telaFeirante', 'telaAdmin'].forEach(t => {
+          const el = document.getElementById(t);
+          if (el) el.classList.add('hidden-view');
+        });
+        const alvo = document.getElementById(id);
+        if (alvo) { alvo.classList.remove('hidden-view'); alvo.classList.add('fade-in'); }
+      }
+
+      function formatarData(d) {
+        if (!d) return '—';
+        const date = new Date(d + 'T12:00:00');
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+
+      // ==========================================================
+      // BOOT
+      // ==========================================================
+      async function boot() {
+        const aviso = document.getElementById('avisoConexao');
+        if (!SUPABASE_URL || SUPABASE_URL.includes('COLE_AQUI') || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('COLE_AQUI')) {
+          aviso.className = 'text-xs rounded-lg px-3 py-2 text-center bg-rose-500/20 border border-rose-400/40 text-rose-200';
+          aviso.textContent = '⚠ Configure SUPABASE_URL e SUPABASE_ANON_KEY no início do <script> para conectar.';
+          aviso.classList.remove('hidden');
+          return;
+        }
+
+        try {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+          aviso.className = 'text-xs rounded-lg px-3 py-2 text-center bg-rose-500/20 border border-rose-400/40 text-rose-200';
+          aviso.textContent = '⚠ Erro ao conectar: ' + e.message;
+          aviso.classList.remove('hidden');
+          return;
+        }
+
+        const { data: { session: s } } = await supabase.auth.getSession();
+        session = s;
+        if (session) {
+          await carregarPerfil();
+          if (currentProfile) direcionarPorTipo();
+        }
+
+        supabase.auth.onAuthStateChange(async (event, s) => {
+          session = s;
+          if (event === 'SIGNED_OUT') {
+            currentProfile = null;
+            feiraAtualId = null;
+            mostrarTela('telaAuth');
+          } else if (event === 'SIGNED_IN' && s) {
+            await carregarPerfil();
+            if (currentProfile) direcionarPorTipo();
+          }
+        });
+      }
+
+      async function carregarPerfil() {
+        if (!session) return;
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        if (error) { console.error('Erro perfil:', error); return; }
+        currentProfile = data;
+      }
+
+      function direcionarPorTipo() {
+        if (!currentProfile) return;
+        if (currentProfile.tipo === 'admin') {
+          document.getElementById('nomeAdminHeader').textContent = currentProfile.nome;
+          mostrarTela('telaAdmin');
+          carregarAdmin();
+        } else {
+          document.getElementById('nomeFeiranteHeader').textContent = currentProfile.nome;
+          mostrarTela('telaFeirante');
+          carregarFeirante();
+        }
+      }
+
+      // ==========================================================
+      // TABS LOGIN/CADASTRO
+      // ==========================================================
+      document.getElementById('tabLogin').addEventListener('click', () => {
+        document.getElementById('tabLogin').className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
+        document.getElementById('tabCadastro').className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
+        document.getElementById('formLoginBox').classList.remove('hidden-view');
+        document.getElementById('formCadastroBox').classList.add('hidden-view');
+      });
+
+      document.getElementById('tabCadastro').addEventListener('click', () => {
+        document.getElementById('tabCadastro').className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
+        document.getElementById('tabLogin').className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
+        document.getElementById('formCadastroBox').classList.remove('hidden-view');
+        document.getElementById('formLoginBox').classList.add('hidden-view');
+      });
+
+      // ==========================================================
+      // LOGIN
+      // ==========================================================
+      document.getElementById('formLogin').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!supabase) { toast('Supabase não configurado', 'error'); return; }
+        const btn = document.getElementById('btnLogin');
+        const erroEl = document.getElementById('erroLogin');
+        btn.disabled = true; btn.textContent = 'Entrando...';
+        erroEl.classList.add('hidden');
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: document.getElementById('loginEmail').value.trim(),
+          password: document.getElementById('loginSenha').value
+        });
+
+        if (error) {
+          erroEl.className = 'text-xs rounded-lg px-3 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200';
+          erroEl.textContent = error.message;
+          erroEl.classList.remove('hidden');
+          btn.disabled = false; btn.textContent = 'Entrar';
+          return;
+        }
+
+        session = data.session;
+        await carregarPerfil();
+        if (currentProfile) {
+          toast('Bem-vindo(a), ' + currentProfile.nome + '!', 'success');
+          direcionarPorTipo();
+        }
+        btn.disabled = false; btn.textContent = 'Entrar';
+      });
+
+      // ==========================================================
+      // CADASTRO
+      // ==========================================================
+      document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!supabase) { toast('Supabase não configurado', 'error'); return; }
+        const btn = document.getElementById('btnCadastro');
+        const erroEl = document.getElementById('erroCadastro');
+        btn.disabled = true; btn.textContent = 'Criando...';
+        erroEl.classList.add('hidden');
+
+        const nome = document.getElementById('cadNome').value.trim();
+        const email = document.getElementById('cadEmail').value.trim();
+        const senha = document.getElementById('cadSenha').value;
+        const tipo = document.getElementById('cadTipo').value;
+
+        const { data, error } = await supabase.auth.signUp({
+          email, password: senha,
+          options: { data: { nome, tipo }, emailRedirectTo: window.location.href }
+        });
+
+        if (error) {
+          erroEl.className = 'text-xs rounded-lg px-3 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200';
+          erroEl.textContent = error.message;
+          erroEl.classList.remove('hidden');
+          btn.disabled = false; btn.textContent = 'Criar conta';
+          return;
+        }
+
+        if (data.session) {
+          session = data.session;
+          await carregarPerfil();
+          if (currentProfile) direcionarPorTipo();
+          toast('Conta criada!', 'success');
+        } else {
+          toast('Conta criada! Verifique seu e-mail.', 'success');
+          document.getElementById('tabLogin').click();
+          document.getElementById('loginEmail').value = email;
+        }
+        btn.disabled = false; btn.textContent = 'Criar conta';
+      });
+
+      // ==========================================================
+      // LOGOUT
+      // ==========================================================
+      async function logout() {
+        await supabase.auth.signOut();
+        session = null; currentProfile = null; feiraAtualId = null;
+        mostrarTela('telaAuth');
+      }
+      document.getElementById('btnLogoutFeirante').addEventListener('click', logout);
+      document.getElementById('btnLogoutAdmin').addEventListener('click', logout);
+
+      // ==========================================================
+      // FEIRANTE
+      // ==========================================================
+      async function carregarFeirante() {
+        const [fRes, iRes] = await Promise.all([
+          supabase.from('feiras').select('*').order('data_evento', { ascending: false }),
+          supabase.from('inscricoes').select('*').eq('feirante_id', currentProfile.id)
+        ]);
+        feirasCache = fRes.data || [];
+        inscricoesCache = iRes.data || [];
+        renderizarSeletorFeira();
+      }
+
+      function renderizarSeletorFeira() {
+        const sel = document.getElementById('seletorFeira');
+        const inscricoesAtivas = inscricoesCache.filter(i => i.status === 'ativa');
+        const feirasDisponiveis = feirasCache.filter(f => inscricoesAtivas.some(i => i.feira_id === f.id));
+
+        if (feirasDisponiveis.length === 0) {
+          sel.innerHTML = '<option value="">Nenhuma feira inscrita</option>';
+          document.getElementById('conteudoFeirante').classList.add('hidden-view');
+          document.getElementById('avisoSemFeira').classList.remove('hidden-view');
+          document.getElementById('btnDesistir').classList.add('hidden');
+          return;
+        }
+
+        sel.innerHTML = feirasDisponiveis.map(f =>
+          `<option value="${f.id}">${f.nome} · ${formatarData(f.data_evento)}</option>`
+        ).join('');
+
+        if (!feiraAtualId || !feirasDisponiveis.some(f => f.id === feiraAtualId)) {
+          feiraAtualId = feirasDisponiveis[0].id;
+        }
+        sel.value = feiraAtualId;
+
+        document.getElementById('avisoSemFeira').classList.add('hidden-view');
+        document.getElementById('conteudoFeirante').classList.remove('hidden-view');
+        document.getElementById('btnDesistir').classList.remove('hidden');
+
+        carregarDadosFeira();
+      }
+
+      async function carregarDadosFeira() {
+        if (!feiraAtualId) return;
+        const [vRes, dRes, aRes] = await Promise.all([
+          supabase.from('vendas').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id).order('created_at', { ascending: false }),
+          supabase.from('despesas').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id).order('created_at', { ascending: false }),
+          supabase.from('acertos').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id)
+        ]);
+
+        const jaAcertado = (aRes.data && aRes.data.length > 0);
+        document.getElementById('formVenda').querySelector('button').disabled = jaAcertado;
+        document.getElementById('formDespesa').querySelector('button').disabled = jaAcertado;
+        if (jaAcertado) toast('Esta feira já foi acertada.', 'warn');
+
+        renderizarResumo(vRes.data || [], dRes.data || []);
+      }
+
+      function renderizarResumo(vendas, despesas) {
+        const totalV = vendas.reduce((a, v) => a + Number(v.valor), 0);
+        const totalD = despesas.reduce((a, d) => a + Number(d.valor), 0);
+        const taxa = totalV * TAXA_ADMIN;
+        const saldo = totalV - totalD - taxa;
+
+        document.getElementById('vendasTotaisDisplay').textContent = formatarMoeda(totalV);
+        document.getElementById('despesasTotaisDisplay').textContent = formatarMoeda(totalD);
+        document.getElementById('taxaAdminDisplay').textContent = formatarMoeda(taxa);
+        document.getElementById('saldoAcertoDisplay').textContent = formatarMoeda(saldo);
+        document.getElementById('btnAcertar').disabled = !(saldo > 0 && vendas.length > 0);
+
+        const todas = [
+          ...vendas.map(v => ({ ...v, tipo: 'venda' })),
+          ...despesas.map(d => ({ ...d, tipo: 'despesa' }))
+        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        const listaEl = document.getElementById('listaTransacoes');
+        if (todas.length === 0) {
+          listaEl.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhuma movimentação ainda.</p>`;
+        } else {
+          listaEl.innerHTML = todas.map(t => {
+            const isV = t.tipo === 'venda';
+            return `
+              <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-2.5 text-sm">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-xs">${isV ? '🟢' : '🔴'}</span>
+                  <span class="text-gray-200 truncate">${t.descricao}</span>
+                </div>
+                <span class="${isV ? 'text-emerald-300' : 'text-rose-300'} font-semibold whitespace-nowrap ml-2">
+                  ${isV ? '+' : '-'} ${formatarMoeda(t.valor)}
+                </span>
+              </div>`;
+          }).join('');
+        }
+      }
+
+      document.getElementById('seletorFeira').addEventListener('change', (e) => {
+        feiraAtualId = e.target.value;
+        carregarDadosFeira();
+      });
+
+      document.getElementById('formVenda').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!feiraAtualId) return;
+        const descricao = document.getElementById('vendaDescricao').value.trim();
+        const valor = parseFloat(document.getElementById('vendaValor').value);
+        const pagamento = document.getElementById('vendaPagamento').value;
+        if (!descricao || !valor || valor <= 0) { toast('Preencha descrição e valor', 'error'); return; }
+
+        const { error } = await supabase.from('vendas').insert({
+          feira_id: feiraAtualId, feirante_id: currentProfile.id, descricao, valor, pagamento
+        });
+        if (error) { toast('Erro: ' + error.message, 'error'); return; }
+        toast('Venda registrada!', 'success');
+        document.getElementById('formVenda').reset();
+        carregarDadosFeira();
+      });
+
+      document.getElementById('formDespesa').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!feiraAtualId) return;
+        const descricao = document.getElementById('despesaDescricao').value.trim();
+        const valor = parseFloat(document.getElementById('despesaValor').value);
+        if (!descricao || !valor || valor <= 0) { toast('Preencha descrição e valor', 'error'); return; }
+
+        const { error } = await supabase.from('despesas').insert({
+          feira_id: feiraAtualId, feirante_id: currentProfile.id, descricao, valor
+        });
+        if (error) { toast('Erro: ' + error.message, 'error'); return; }
+        toast('Despesa registrada!', 'success');
+        document.getElementById('formDespesa').reset();
+        carregarDadosFeira();
+      });
+
+      document.getElementById('btnAcertar').addEventListener('click', async () => {
+        if (!feiraAtualId) return;
+        const saldoTxt = document.getElementById('saldoAcertoDisplay').textContent;
+        const saldo = parseFloat(saldoTxt.replace(/[^\d,-]/g, '').replace('.', '').replace(',', '.')) || 0;
+        if (!confirm(`Liquidar acerto de ${formatarMoeda(saldo)}?`)) return;
+
+        const { data: vendas } = await supabase.from('vendas').select('valor').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id);
+        const totalV = (vendas || []).reduce((a, v) => a + Number(v.valor), 0);
+        const taxa = totalV * TAXA_ADMIN;
+
+        const { error } = await supabase.from('acertos').insert({
+          feira_id: feiraAtualId, feirante_id: currentProfile.id,
+          valor_vendas: totalV, taxa_admin: taxa, valor_liquido: saldo
+        });
+        if (error) { toast('Erro: ' + error.message, 'error'); return; }
+        toast('Acerto liquidado com sucesso!', 'success');
+        carregarDadosFeira();
+      });
+
+      document.getElementById('btnDesistir').addEventListener('click', async () => {
+        if (!feiraAtualId) return;
+        if (!confirm('Tem certeza que deseja desistir desta feira?')) return;
+
+        const inscricao = inscricoesCache.find(i => i.feira_id === feiraAtualId && i.status === 'ativa');
+        if (!inscricao) { toast('Inscrição não encontrada', 'error'); return; }
+
+        const { error } = await supabase.from('inscricoes').update({ status: 'desistiu' }).eq('id', inscricao.id);
+        if (error) { toast('Erro: ' + error.message, 'error'); return; }
+        toast('Você desistiu da feira.', 'warn');
+        await carregarFeirante();
+      });
+
+      // ==========================================================
+      // ADMIN
+      // ==========================================================
+      async function carregarAdmin() {
+        const [fRes, uRes, aRes] = await Promise.all([
+          supabase.from('feiras').select('*').order('data_evento', { ascending: false }),
+          supabase.from('profiles').select('*').eq('tipo', 'feirante').order('nome'),
+          supabase.from('acertos').select('*, profiles(nome), feiras(nome)').order('created_at', { ascending: false })
+        ]);
+        feirasCache = fRes.data || [];
+        feirantesCache = uRes.data || [];
+        window._acertosAdmin = aRes.data || [];
+
+        const totalAcertos = window._acertosAdmin.reduce((a, x) => a + Number(x.taxa_admin), 0);
+        document.getElementById('adminTotalFeiras').textContent = feirasCache.length;
+        document.getElementById('adminTotalFeirantes').textContent = feirantesCache.length;
+        document.getElementById('adminTotalAcertos').textContent = formatarMoeda(totalAcertos);
+
+        renderizarFeirasAdmin();
+        renderizarFeirantesAdmin();
+        renderizarAcertosAdmin();
+      }
+
+      function renderizarFeirasAdmin() {
+        const el = document.getElementById('listaFeiras');
+        if (feirasCache.length === 0) {
+          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhuma feira criada ainda.</p>`;
+          return;
+        }
+        el.innerHTML = feirasCache.map(f => `
+          <div class="bg-white/[0.03] border border-border-glow/50 rounded-xl p-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+              <div>
+                <h3 class="text-white font-semibold">${f.nome}</h3>
+                <p class="text-xs text-gray-400">${formatarData(f.data_evento)} · ${f.local || 'Local não definido'}</p>
+              </div>
+              <span class="badge ${f.status === 'aberta' ? 'badge-ativa' : 'badge-concluida'} self-start sm:self-center">
+                ${f.status === 'aberta' ? 'Aberta' : 'Encerrada'}
+              </span>
+            </div>
+            ${f.descricao ? `<p class="text-xs text-gray-400 mb-2">${f.descricao}</p>` : ''}
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button onclick="window._abrirModalFeirante('${f.id}', '${f.nome.replace(/'/g, "\\'")}')" class="btn-outline-gold text-xs px-3 py-1.5 rounded-lg">+ Adicionar feirante</button>
+              <button onclick="window._encerrarFeira('${f.id}', '${f.status}')" class="text-xs px-3 py-1.5 rounded-lg ${f.status === 'aberta' ? 'bg-rose-500/10 text-rose-300 border border-rose-400/30' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-400/30'}">
+                ${f.status === 'aberta' ? 'Encerrar feira' : 'Reabrir feira'}
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderizarFeirantesAdmin() {
+        const el = document.getElementById('listaFeirantes');
+        if (feirantesCache.length === 0) {
+          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhum feirante cadastrado ainda.</p>`;
+          return;
+        }
+        el.innerHTML = feirantesCache.map(f => `
+          <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-300">👤</div>
+              <div>
+                <p class="text-sm text-white font-medium">${f.nome}</p>
+                <p class="text-[11px] text-gray-500">ID: ${f.id.slice(0, 8)}...</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderizarAcertosAdmin() {
+        const el = document.getElementById('listaAcertos');
+        const lista = window._acertosAdmin || [];
+        if (lista.length === 0) {
+          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhum acerto recebido ainda.</p>`;
+          return;
+        }
+        el.innerHTML = lista.map(a => `
+          <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-3">
+            <div>
+              <p class="text-sm text-white font-medium">${a.profiles?.nome || '—'}</p>
+              <p class="text-[11px] text-gray-500">${a.feiras?.nome || '—'} · ${new Date(a.created_at).toLocaleString('pt-BR')}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-emerald-300 font-semibold">+ ${formatarMoeda(a.taxa_admin)}</p>
+              <p class="text-[11px] text-gray-500">Vendas: ${formatarMoeda(a.valor_vendas)}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('formFeira').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('feiraNome').value.trim();
+        const data = document.getElementById('feiraData').value;
+        const local = document.getElementById('feiraLocal').value.trim();
+        const descricao = document.getElementById('feiraDescricao').value.trim();
+
+        const { error } = await supabase.from('feiras').insert({
+          nome, data_evento: data, local: local || null, descricao: descricao || null,
+          admin_id: currentProfile.id
+        });
+        if (error) { toast('Erro: ' + error.message, 'error'); return; }
+        toast('Feira criada!', 'success');
+        document.getElementById('formFeira').reset();
+        await carregarAdmin();
+      });
+
+      window._encerrarFeira = async (id, statusAtual) => {
+        const novo = statusAtual === 'aberta' ? 'encerrada' : 'aberta';
+        const { error } = await supabase.from('feiras').update({ status: novo }).eq('id', id);
+        if (error) { toast('Erro', 'error'); return; }
+        toast(`Feira ${novo}!`, 'success');
+        await carregarAdmin();
+      };
+
+      window._abrirModalFeirante = (feiraId, nome) => {
+        feiraModalId = feiraId;
+        document.getElementById('modalFeiraNome').textContent = 'Feira: ' + nome;
+        const sel = document.getElementById('modalSelectFeirante');
+        if (feirantesCache.length === 0) {
+          sel.innerHTML = '<option value="">Nenhum feirante cadastrado</option>';
+        } else {
+          sel.innerHTML = '<option value="">Selecione...</option>' + feirantesCache.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+        }
+        document.getElementById('modalAdicionarFeirante').classList.remove('hidden-view');
+      };
+
+      document.getElementById('modalCancelar').addEventListener('click', () => {
+        document.getElementById('modalAdicionarFeirante').classList.add('hidden-view');
+      });
+
+      document.getElementById('modalConfirmar').addEventListener('click', async () => {
+        const feiranteId = document.getElementById('modalSelectFeirante').value;
+        if (!feiranteId || !feiraModalId) { toast('Selecione um feirante', 'error'); return; }
+
+        const { error } = await supabase.from('inscricoes').insert({
+          feira_id: feiraModalId, feirante_id: feiranteId, status: 'ativa'
+        });
+        if (error) {
+          if (error.code === '23505') toast('Feirante já inscrito nesta feira.', 'warn');
+          else toast('Erro: ' + error.message, 'error');
+          return;
+        }
+        toast('Feirante adicionado!', 'success');
+        document.getElementById('modalAdicionarFeirante').classList.add('hidden-view');
+        await carregarAdmin();
+      });
+
+      // Tabs admin
+      const tabFeiras = document.getElementById('tabAdminFeiras');
+      const tabFeirantes = document.getElementById('tabAdminFeirantes');
+      const tabAcertos = document.getElementById('tabAdminAcertos');
+      function ativarTab(tab) {
+        [tabFeiras, tabFeirantes, tabAcertos].forEach(t => {
+          t.className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
+        });
+        tab.className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
+        ['painelFeiras', 'painelFeirantes', 'painelAcertos'].forEach(p => document.getElementById(p).classList.add('hidden-view'));
+      }
+      tabFeiras.addEventListener('click', () => { ativarTab(tabFeiras); document.getElementById('painelFeiras').classList.remove('hidden-view'); });
+      tabFeirantes.addEventListener('click', () => { ativarTab(tabFeirantes); document.getElementById('painelFeirantes').classList.remove('hidden-view'); });
+      tabAcertos.addEventListener('click', () => { ativarTab(tabAcertos); document.getElementById('painelAcertos').classList.remove('hidden-view'); });
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
+              
