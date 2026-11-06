@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Caixa Simplificado</title>
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-[#0b0c10] text-gray-200 p-4 max-w-4xl mx-auto font-sans">
+
+    <header class="mb-6 border-b border-gray-800 pb-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-amber-400">Feira da Lua</h1>
+            <p class="text-xs text-gray-400">Controle Direto de Recebimentos e Pagamentos</p>
+        </div>
+        <button onclick="limparTudo()" class="bg-red-950/50 text-red-400 border border-red-900 px-3 py-1.5 rounded text-xs hover:bg-red-900 transition cursor-pointer">
+            Zerar Dados
+        </button>
+    </header>
+
+    <!-- FORMULÁRIO -->
+    <div class="bg-[#141a24] p-4 rounded-xl border border-gray-800 mb-6">
+        <form id="form-caixa" onsubmit="salvar(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input type="date" id="data" required class="bg-[#0b0c10] border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <input type="text" id="feirante" placeholder="Nome do Feirante" required class="bg-[#0b0c10] border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <select id="status" class="bg-[#0b0c10] border border-gray-700 rounded px-3 py-2 text-sm text-white">
+                <option value="Pago">Pago</option>
+                <option value="Pendente">Pendente</option>
+            </select>
+            <input type="number" step="0.01" id="valor" placeholder="Valor R$" required class="bg-[#0b0c10] border border-gray-700 rounded px-3 py-2 text-sm text-white">
+            <button type="submit" class="md:col-span-4 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-2 rounded text-sm transition cursor-pointer">
+                Gravar Lançamento
+            </button>
+        </form>
+    </div>
+
+    <!-- TABELA -->
+    <div class="bg-[#1f2833] rounded-xl border border-gray-800 overflow-hidden">
+        <table class="w-full text-left text-sm">
+            <thead>
+                <tr class="bg-[#141a24] text-gray-400 border-b border-gray-800">
+                    <th class="p-3">Data</th>
+                    <th class="p-3">Feirante</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3">Valor</th>
+                    <th class="p-3 text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela" class="divide-y divide-gray-800 text-gray-300">
+                <!-- Preenchido via Javascript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Inicializa o banco local se estiver vazio
+        if (!localStorage.getItem('banco_simples')) {
+            localStorage.setItem('banco_simples', JSON.stringify([]));
+        }
+
+        function carregarDados() {
+            const banco = JSON.parse(localStorage.getItem('banco_simples'));
+            const tbody = document.getElementById('corpo-tabela');
+            tbody.innerHTML = '';
+
+            if (banco.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500 italic">Nenhum registro gravado. Começando do zero!</td></tr>`;
+                return;
+            }
+
+            banco.forEach((item, index) => {
+                const dataFormatada = item.data.split('-').reverse().join('/');
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#141a24]/40">
+                        <td class="p-3 font-mono">${dataFormatada}</td>
+                        <td class="p-3 font-bold">${item.feirante}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-xs font-semibold ${item.status === 'Pago' ? 'bg-green-950 text-green-400' : 'bg-red-950 text-red-400'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="p-3 font-medium ${item.status === 'Pago' ? 'text-green-400' : 'text-red-400'}">R$ ${parseFloat(item.valor).toFixed(2)}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deletar(${index})" class="text-gray-500 hover:text-red-400 text-xs px-2 py-1 transition cursor-pointer">🗑️ Excluir</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function salvar(event) {
+            event.preventDefault();
+            const banco = JSON.parse(localStorage.getItem('banco_simples'));
+            
+            banco.push({
+                data: document.getElementById('data').value,
+                feirante: document.getElementById('feirante').value.trim(),
+                status: document.getElementById('status').value,
+                valor: document.getElementById('valor').value
+            });
+
+            localStorage.setItem('banco_simples', JSON.stringify(banco));
+            document.getElementById('form-caixa').reset();
+            carregarDados();
+        }
+
+        function deletar(index) {
+            if (confirm("Remover este lançamento?")) {
+                const banco = JSON.parse(localStorage.getItem('banco_simples'));
+                banco.splice(index, 1);
+                localStorage.setItem('banco_simples', JSON.stringify(banco));
+                carregarDados();
+            }
+        }
+
+        function limparTudo() {
+            if (confirm("Deseja apagar todos os registros da lista?")) {
+                localStorage.setItem('banco_simples', JSON.stringify([]));
+                carregarDados();
+            }
+        }
+
+        // Executa ao abrir a página
+        carregarDados();
+    </script>
+</body>
+</html>
