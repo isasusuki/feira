@@ -1,972 +1,1386 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Feira da Lua · Sistema de Gestão</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            'deep-navy': '#0B0F19',
-            'cosmic-purple': '#2A1B3D',
-            'midnight-blue': '#111827',
-            'moon-gold': '#FBBF24',
-            'moon-gold-soft': '#FCD34D',
-            'card-bg': '#121A2C',
-            'border-glow': '#2D3B5E',
-          },
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          boxShadow: {
-            'glow-gold': '0 0 15px rgba(251, 191, 36, 0.15)',
-            'glow-purple': '0 0 20px rgba(139, 92, 246, 0.15)',
-          }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunar Fair - Gestão de Feiras</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: {
+      colors: {
+        lunar: {
+          black:'#0b0c10', dark:'#12141c', card:'#1a1d28',
+          border:'#2a2e3d', yellow:'#f5c518', yellowHover:'#e0b20d',
+          gold:'#ffd700', glow:'rgba(245,197,24,0.15)'
         }
-      }
-    }
-  </script>
-  <style>
-    body {
-      background: radial-gradient(circle at 20% 30%, #1A1F2E, #0B0F19 90%);
-      font-family: 'Inter', system-ui, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #1A1F2E; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #2D3B5E; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #FBBF24; }
-    input, select, textarea {
-      background-color: #0F1625;
-      border: 1px solid #2D3B5E;
-      color: #F3F4F6;
-      transition: all 0.2s ease;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #FBBF24;
-      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
-    }
-    input::placeholder { color: #6B7280; }
-    .btn-gold {
-      background: linear-gradient(135deg, #FBBF24, #F59E0B);
-      color: #0B0F19;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.25);
-    }
-    .btn-gold:hover { background: linear-gradient(135deg, #FCD34D, #FBBF24); box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4); transform: translateY(-1px); }
-    .btn-gold:active { transform: translateY(1px); }
-    .btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .btn-outline-gold { border: 1px solid #FBBF24; color: #FBBF24; background: transparent; transition: all 0.2s ease; }
-    .btn-outline-gold:hover { background: rgba(251, 191, 36, 0.1); border-color: #FCD34D; }
-    .btn-outline-gold:disabled { opacity: 0.4; cursor: not-allowed; }
-    .glass-card {
-      background: rgba(18, 26, 44, 0.8);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(45, 59, 94, 0.6);
-      border-radius: 1.25rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .glass-card:hover { border-color: rgba(251, 191, 36, 0.3); }
-    .divider-glow { height: 1px; background: linear-gradient(90deg, transparent, #2D3B5E, #FBBF24, #2D3B5E, transparent); opacity: 0.5; }
-    .fade-in { animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .hidden-view { display: none !important; }
-    .toast { position: fixed; top: 1rem; right: 1rem; z-index: 100; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s ease; max-width: 320px; }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
-    .badge-ativa { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-concluida { background: rgba(107, 114, 128, 0.15); color: #9CA3AF; border: 1px solid rgba(107, 114, 128, 0.3); }
-  </style>
+      },
+      fontFamily: { sans: ['Inter','sans-serif'] }
+    }}
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#0b0c10; color:#fff; font-family:'Inter',sans-serif; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:#12141c; }
+  ::-webkit-scrollbar-thumb { background:#2a2e3d; border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:#f5c518; }
+  .lunar-glow { box-shadow: 0 0 15px rgba(245,197,24,0.2); }
+  .moon-phase { filter: drop-shadow(0 0 6px rgba(245,197,24,0.5)); }
+  @media print {
+    .no-print { display:none !important; }
+    body { background:white !important; color:black !important; }
+  }
+</style>
 </head>
-<body class="min-h-screen text-gray-200 antialiased p-4 md:p-6 lg:p-8 flex items-start justify-center">
+<body class="min-h-screen flex flex-col selection:bg-lunar-yellow selection:text-black">
 
-  <!-- ============================================================ -->
-  <!-- TELA 1: AUTENTICAÇÃO (Login / Cadastro)                       -->
-  <!-- ============================================================ -->
-  <section id="telaAuth" class="w-full max-w-md mx-auto space-y-5 fade-in">
-    <header class="text-center space-y-2">
-      <div class="flex items-center justify-center gap-3">
-        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
-          <span class="text-2xl">🌙</span>
-        </div>
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
-      </div>
-      <p class="text-sm text-gray-400">Gestão de feiras noturnas</p>
-    </header>
-
-    <div class="flex bg-white/5 rounded-xl p-1 border border-border-glow">
-      <button id="tabLogin" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition">Entrar</button>
-      <button id="tabCadastro" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Criar conta</button>
-    </div>
-
-    <!-- Form Login -->
-    <div id="formLoginBox" class="glass-card p-6 space-y-4">
-      <form id="formLogin" class="space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">E-mail</label>
-          <input type="email" id="loginEmail" placeholder="seu@email.com" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Senha</label>
-          <input type="password" id="loginSenha" placeholder="••••••••" class="w-full rounded-xl px-3 py-2.5 text-sm" required minlength="6">
-        </div>
-        <div id="erroLogin" class="hidden text-xs rounded-lg px-3 py-2"></div>
-        <button type="submit" id="btnLogin" class="btn-gold w-full py-3 rounded-xl text-sm font-semibold">Entrar</button>
-      </form>
-      <button id="btnEsqueciSenha" class="text-xs text-gray-400 hover:text-moon-gold w-full text-center transition">Esqueci minha senha</button>
-
-      <!-- Dica de credenciais -->
-      <div class="mt-4 pt-4 border-t border-border-glow/50">
-        <p class="text-[11px] text-gray-500 text-center uppercase tracking-wider mb-2">🔑 Credenciais de demonstração</p>
-        <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div class="bg-emerald-500/10 border border-emerald-400/20 rounded-lg p-2 text-center">
-            <p class="text-emerald-300 font-semibold">Feirante</p>
-            <p class="text-gray-400 mt-0.5">E-mail: <span class="text-gray-200 font-mono break-all">feirante@feira.com</span></p>
-            <p class="text-gray-400">Senha: <span class="text-gray-200 font-mono">feira123</span></p>
-          </div>
-          <div class="bg-moon-gold/10 border border-moon-gold/20 rounded-lg p-2 text-center">
-            <p class="text-moon-gold font-semibold">Admin</p>
-            <p class="text-gray-400 mt-0.5">E-mail: <span class="text-gray-200 font-mono break-all">admin@feira.com</span></p>
-            <p class="text-gray-400">Senha: <span class="text-gray-200 font-mono">admin123</span></p>
-          </div>
-        </div>
-        <p class="text-[10px] text-gray-600 text-center mt-2">Senhas começam com "feira" ou "admin"</p>
-      </div>
-    </div>
-
-    <!-- Form Cadastro -->
-    <div id="formCadastroBox" class="hidden-view glass-card p-6 space-y-4">
-      <form id="formCadastro" class="space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Nome completo</label>
-          <input type="text" id="cadNome" placeholder="Seu nome" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">E-mail</label>
-          <input type="email" id="cadEmail" placeholder="seu@email.com" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Senha</label>
-          <input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres" class="w-full rounded-xl px-3 py-2.5 text-sm" required minlength="6">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Tipo de conta</label>
-          <select id="cadTipo" class="w-full rounded-xl px-3 py-2.5 text-sm">
-            <option value="feirante">Feirante (expositor)</option>
-            <option value="admin">Administrador (organização)</option>
-          </select>
-        </div>
-        <div id="erroCadastro" class="hidden text-xs rounded-lg px-3 py-2"></div>
-        <button type="submit" id="btnCadastro" class="btn-gold w-full py-3 rounded-xl text-sm font-semibold">Criar conta</button>
-      </form>
-
-      <div class="mt-4 pt-4 border-t border-border-glow/50">
-        <p class="text-[11px] text-gray-500 text-center">
-          💡 Use uma senha começando com <span class="text-moon-gold font-mono">feira</span> (feirante) ou <span class="text-moon-gold font-mono">admin</span> (administrador) para facilitar a identificação.
-        </p>
-      </div>
-    </div>
-
-    <div id="avisoConexao" class="hidden text-xs rounded-lg px-3 py-2 text-center"></div>
-  </section>
-
-  <!-- ============================================================ -->
-  <!-- TELA 2: ÁREA DO FEIRANTE                                      -->
-  <!-- ============================================================ -->
-  <section id="telaFeirante" class="hidden-view w-full max-w-6xl mx-auto space-y-6">
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
-          <span class="text-2xl">🌙</span>
-        </div>
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
-          <p class="text-xs text-gray-400">Área do Feirante · <span id="nomeFeiranteHeader">—</span></p>
-        </div>
-      </div>
-      <button id="btnLogoutFeirante" class="btn-outline-gold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-        Sair
-      </button>
-    </header>
-
-    <div class="glass-card p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
-      <div class="flex items-center gap-3 flex-1">
-        <span class="text-2xl">🎪</span>
-        <div class="flex-1">
-          <label class="text-xs text-gray-400 block mb-1">Feira selecionada</label>
-          <select id="seletorFeira" class="w-full rounded-lg px-3 py-2 text-sm bg-midnight-blue border-border-glow">
-            <option value="">Carregando...</option>
-          </select>
-        </div>
-      </div>
-      <button id="btnDesistir" class="text-xs px-4 py-2 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-400/30 hover:bg-rose-500/20 transition hidden">
-        Desistir da feira
-      </button>
-    </div>
-
-    <div id="conteudoFeirante" class="hidden-view">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div class="lg:col-span-2 space-y-5">
-          <div class="glass-card p-5 md:p-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <p class="text-sm text-gray-400 uppercase tracking-wider">Saldo disponível para acerto</p>
-                <p class="text-4xl md:text-5xl font-bold text-moon-gold mt-1" id="saldoAcertoDisplay">R$ 0,00</p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-400">Taxa administrador (10%)</p>
-                <p class="text-2xl font-semibold text-rose-300" id="taxaAdminDisplay">R$ 0,00</p>
-              </div>
-            </div>
-            <div class="divider-glow my-4"></div>
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <div class="flex items-center gap-2 text-sm">
-                <span class="text-gray-400">Vendas:</span>
-                <span class="font-semibold text-emerald-300" id="vendasTotaisDisplay">R$ 0,00</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <span class="text-gray-400">Despesas:</span>
-                <span class="font-semibold text-rose-300" id="despesasTotaisDisplay">R$ 0,00</span>
-              </div>
-              <button id="btnAcertar" class="btn-gold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Liquidar acerto
-              </button>
-            </div>
-          </div>
-
-          <div class="glass-card p-5">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-              <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
-              Movimentações
-            </h2>
-            <div id="listaTransacoes" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-              <p class="text-sm text-gray-500 text-center py-6">Nenhuma movimentação ainda.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="space-y-5">
-          <div class="glass-card p-5">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-              <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
-              Nova venda
-            </h2>
-            <form id="formVenda" class="space-y-3">
-              <input type="text" id="vendaDescricao" placeholder="Descrição" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-              <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="vendaValor" step="0.01" min="0.01" placeholder="Valor" class="rounded-xl px-3 py-2.5 text-sm" required>
-                <select id="vendaPagamento" class="rounded-xl px-3 py-2.5 text-sm">
-                  <option>Dinheiro</option>
-                  <option>Pix</option>
-                  <option>Cartão</option>
-                </select>
-              </div>
-              <button type="submit" class="btn-gold w-full py-2.5 rounded-xl text-sm font-semibold">Adicionar venda</button>
-            </form>
-          </div>
-
-          <div class="glass-card p-5">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-              <span class="w-1.5 h-5 bg-rose-400 rounded-full"></span>
-              Nova despesa
-            </h2>
-            <form id="formDespesa" class="space-y-3">
-              <input type="text" id="despesaDescricao" placeholder="Descrição" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-              <input type="number" id="despesaValor" step="0.01" min="0.01" placeholder="Valor" class="w-full rounded-xl px-3 py-2.5 text-sm" required>
-              <button type="submit" class="btn-outline-gold w-full py-2.5 rounded-xl text-sm font-semibold">Adicionar despesa</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="avisoSemFeira" class="glass-card p-8 text-center hidden-view">
-      <p class="text-4xl mb-3">🎪</p>
-      <h3 class="text-lg font-semibold text-white mb-1">Nenhuma feira ativa</h3>
-      <p class="text-sm text-gray-400">Aguarde o administrador criar uma nova feira ou inscrever você em uma.</p>
-    </div>
-  </section>
-
-  <!-- ============================================================ -->
-  <!-- TELA 3: ÁREA DO ADMIN                                          -->
-  <!-- ============================================================ -->
-  <section id="telaAdmin" class="hidden-view w-full max-w-6xl mx-auto space-y-6">
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-moon-gold/30 to-cosmic-purple flex items-center justify-center shadow-glow-gold">
-          <span class="text-2xl">🌙</span>
-        </div>
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-moon-gold via-yellow-200 to-moon-gold bg-clip-text text-transparent">Feira da Lua</h1>
-          <p class="text-xs text-gray-400">Admin · <span id="nomeAdminHeader">—</span></p>
-        </div>
-      </div>
-      <button id="btnLogoutAdmin" class="btn-outline-gold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-        Sair
-      </button>
-    </header>
-
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="glass-card p-5">
-        <p class="text-xs text-gray-400 uppercase">Feiras criadas</p>
-        <p class="text-3xl font-bold text-moon-gold mt-1" id="adminTotalFeiras">0</p>
-      </div>
-      <div class="glass-card p-5">
-        <p class="text-xs text-gray-400 uppercase">Feirantes cadastrados</p>
-        <p class="text-3xl font-bold text-white mt-1" id="adminTotalFeirantes">0</p>
-      </div>
-      <div class="glass-card p-5">
-        <p class="text-xs text-gray-400 uppercase">Acertos recebidos</p>
-        <p class="text-3xl font-bold text-emerald-300 mt-1" id="adminTotalAcertos">R$ 0,00</p>
-      </div>
-    </div>
-
-    <div class="flex bg-white/5 rounded-xl p-1 border border-border-glow">
-      <button id="tabAdminFeiras" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition">Feiras</button>
-      <button id="tabAdminFeirantes" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Feirantes</button>
-      <button id="tabAdminAcertos" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition">Acertos</button>
-    </div>
-
-    <div id="painelFeiras" class="space-y-5">
-      <div class="glass-card p-5">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
-          Nova feira
-        </h2>
-        <form id="formFeira" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input type="text" id="feiraNome" placeholder="Nome da feira" class="rounded-xl px-3 py-2.5 text-sm" required>
-          <input type="date" id="feiraData" class="rounded-xl px-3 py-2.5 text-sm" required>
-          <input type="text" id="feiraLocal" placeholder="Local (opcional)" class="rounded-xl px-3 py-2.5 text-sm">
-          <input type="text" id="feiraDescricao" placeholder="Descrição (opcional)" class="rounded-xl px-3 py-2.5 text-sm">
-          <button type="submit" class="btn-gold sm:col-span-2 py-2.5 rounded-xl text-sm font-semibold">Criar feira</button>
-        </form>
-      </div>
-
-      <div class="glass-card p-5">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <span class="w-1.5 h-5 bg-moon-gold rounded-full"></span>
-          Feiras cadastradas
-        </h2>
-        <div id="listaFeiras" class="space-y-3">
-          <p class="text-sm text-gray-500 text-center py-6">Nenhuma feira criada ainda.</p>
-        </div>
-      </div>
-    </div>
-
-    <div id="painelFeirantes" class="hidden-view">
-      <div class="glass-card p-5">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
-          Feirantes cadastrados
-        </h2>
-        <div id="listaFeirantes" class="space-y-3">
-          <p class="text-sm text-gray-500 text-center py-6">Nenhum feirante cadastrado ainda.</p>
-        </div>
-      </div>
-    </div>
-
-    <div id="painelAcertos" class="hidden-view">
-      <div class="glass-card p-5">
-        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <span class="w-1.5 h-5 bg-emerald-400 rounded-full"></span>
-          Acertos recebidos
-        </h2>
-        <div id="listaAcertos" class="space-y-3">
-          <p class="text-sm text-gray-500 text-center py-6">Nenhum acerto recebido ainda.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MODAL -->
-  <div id="modalAdicionarFeirante" class="hidden-view fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-    <div class="glass-card p-6 w-full max-w-md space-y-4 fade-in">
-      <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-        <span class="text-moon-gold">➕</span> Adicionar feirante à feira
-      </h3>
-      <p class="text-xs text-gray-400" id="modalFeiraNome">—</p>
-      <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1">Selecione o feirante</label>
-        <select id="modalSelectFeirante" class="w-full rounded-xl px-3 py-2.5 text-sm">
-          <option value="">Carregando...</option>
-        </select>
-      </div>
-      <div class="flex gap-2">
-        <button id="modalCancelar" class="btn-outline-gold flex-1 py-2.5 rounded-xl text-sm">Cancelar</button>
-        <button id="modalConfirmar" class="btn-gold flex-1 py-2.5 rounded-xl text-sm font-semibold">Adicionar</button>
-      </div>
-    </div>
+<!-- =================== TELA DE LOGIN =================== -->
+<div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gradient-to-br from-lunar-black via-lunar-dark to-lunar-black">
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-32 -right-32 w-96 h-96 bg-lunar-yellow/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-lunar-yellow/5 rounded-full blur-3xl"></div>
   </div>
 
-  <div id="toastContainer"></div>
+  <div class="relative w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 mx-auto rounded-full bg-lunar-yellow flex items-center justify-center text-lunar-black moon-phase shadow-2xl mb-4">
+        <i class="fa-solid fa-moon text-4xl"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-white">FEIRA<span class="text-lunar-yellow">LUNAR</span></h1>
+      <p class="text-gray-400 text-sm mt-1">Gestão inteligente de feiras</p>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // ============================================================
-    // ⚙️ CONFIGURAÇÃO DO SUPABASE — EDITE APENAS ESTAS 2 LINHAS ⚙️
-    // ------------------------------------------------------------
-    // 1. Acesse supabase.com → seu projeto
-    // 2. Menu lateral: Settings (⚙️) → API
-    // 3. Copie "Project URL"        → cole em SUPABASE_URL
-    // 4. Copie "anon public" (key)  → cole em SUPABASE_ANON_KEY
-    // ============================================================
-    const SUPABASE_URL = 'https://lqxckcfductdxpqrqzql.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_npA9UGv3vYRYLILsKPhgiw_RpPCBRkl';
-    // ============================================================
+    <div class="bg-lunar-card border border-lunar-border rounded-2xl p-6 shadow-2xl">
+      <div class="flex gap-2 mb-5 bg-lunar-black p-1 rounded-xl border border-lunar-border">
+        <button id="auth-tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-lunar-yellow text-lunar-black transition">
+          Entrar
+        </button>
+        <button id="auth-tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-2 text-sm font-medium text-gray-300 hover:text-white rounded-lg transition">
+          Cadastrar
+        </button>
+      </div>
 
-    (function() {
-      'use strict';
+      <!-- LOGIN -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">E-mail</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-gray-500 text-sm"></i>
+            <input type="email" id="login-email" required placeholder="seu@email.com"
+              class="w-full bg-lunar-black border border-lunar-border rounded-xl pl-10 pr-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Senha</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-gray-500 text-sm"></i>
+            <input type="password" id="login-password" required placeholder="••••••••"
+              class="w-full bg-lunar-black border border-lunar-border rounded-xl pl-10 pr-10 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            <button type="button" onclick="togglePassword('login-password')" class="absolute right-3 top-3 text-gray-500 hover:text-lunar-yellow">
+              <i class="fa-solid fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
 
-      let supabase = null;
-      let session = null;
-      let currentProfile = null;
-      let feirasCache = [];
-      let feirantesCache = [];
-      let inscricoesCache = [];
-      let feiraAtualId = null;
-      let feiraModalId = null;
+        <div class="bg-lunar-black/60 border border-lunar-yellow/20 rounded-xl p-3 text-xs text-gray-400">
+          <p class="font-semibold text-lunar-yellow mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-circle-info"></i> Dica de acesso
+          </p>
+          <p>Admin demo: <span class="text-white font-mono">admin@lunarfair.com</span></p>
+          <p>Senha demo: <span class="text-white font-mono">admin123</span></p>
+          <p class="mt-1">Feirante demo: <span class="text-white font-mono">feirante@lunarfair.com</span> / <span class="text-white font-mono">feirante123</span></p>
+        </div>
 
-      const TAXA_ADMIN = 0.10;
+        <button type="submit" id="login-submit-btn"
+          class="w-full bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black font-bold py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Entrar
+        </button>
+        <p id="login-error" class="text-xs text-red-400 text-center hidden"></p>
+      </form>
 
-      // ==========================================================
-      // UTILITÁRIOS
-      // ==========================================================
-      function formatarMoeda(v) {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
-      }
+      <!-- CADASTRO -->
+      <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nome completo</label>
+          <input type="text" id="signup-name" required placeholder="Seu nome"
+            class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">E-mail</label>
+          <input type="email" id="signup-email" required placeholder="seu@email.com"
+            class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Telefone</label>
+          <input type="text" id="signup-phone" placeholder="(00) 00000-0000"
+            class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tipo de conta</label>
+          <select id="signup-role" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            <option value="merchant">Feirante</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Senha</label>
+          <input type="password" id="signup-password" required minlength="6" placeholder="Mínimo 6 caracteres"
+            class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+        </div>
+        <button type="submit" id="signup-submit-btn"
+          class="w-full bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black font-bold py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-user-plus"></i> Criar conta
+        </button>
+        <p id="signup-error" class="text-xs text-red-400 text-center hidden"></p>
+      </form>
+    </div>
 
-      function toast(msg, tipo = 'info') {
-        const cores = {
-          info: 'bg-blue-500/20 border-blue-400/40 text-blue-200',
-          success: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200',
-          error: 'bg-rose-500/20 border-rose-400/40 text-rose-200',
-          warn: 'bg-moon-gold/20 border-moon-gold/40 text-moon-gold'
-        };
-        const el = document.createElement('div');
-        el.className = `toast border ${cores[tipo] || cores.info}`;
-        el.textContent = msg;
-        document.getElementById('toastContainer').appendChild(el);
-        setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3500);
-      }
+    <p class="text-center text-xs text-gray-500 mt-4">Lunar Fair © <span id="login-year"></span></p>
+  </div>
+</div>
 
-      function mostrarTela(id) {
-        ['telaAuth', 'telaFeirante', 'telaAdmin'].forEach(t => {
-          const el = document.getElementById(t);
-          if (el) el.classList.add('hidden-view');
-        });
-        const alvo = document.getElementById(id);
-        if (alvo) { alvo.classList.remove('hidden-view'); alvo.classList.add('fade-in'); }
-      }
+<!-- =================== APP PRINCIPAL =================== -->
+<div id="app-screen" class="hidden min-h-screen flex flex-col">
 
-      function formatarData(d) {
-        if (!d) return '—';
-        const date = new Date(d + 'T12:00:00');
-        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-      }
+  <header class="border-b border-lunar-border bg-lunar-dark/90 backdrop-blur sticky top-0 z-50 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-lunar-yellow flex items-center justify-center text-lunar-black font-bold text-xl moon-phase shadow-lg">
+          <i class="fa-solid fa-moon"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            FEIRA<span class="text-lunar-yellow">LUNAR</span>
+          </h1>
+          <p class="text-xs text-gray-400">Controle de Recebimentos por Evento</p>
+        </div>
+      </div>
 
-      // ==========================================================
-      // BOOT
-      // ==========================================================
-      async function boot() {
-        const aviso = document.getElementById('avisoConexao');
-        if (!SUPABASE_URL || SUPABASE_URL.includes('COLE_AQUI') || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('COLE_AQUI')) {
-          aviso.className = 'text-xs rounded-lg px-3 py-2 text-center bg-rose-500/20 border border-rose-400/40 text-rose-200';
-          aviso.textContent = '⚠ Configure SUPABASE_URL e SUPABASE_ANON_KEY no início do <script> para conectar.';
-          aviso.classList.remove('hidden');
-          return;
-        }
+      <nav class="flex space-x-1 sm:space-x-2 bg-lunar-black p-1 rounded-xl border border-lunar-border no-print">
+        <button id="tab-event-btn" onclick="switchTab('event')" class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-lunar-yellow text-lunar-black font-semibold shadow">
+          <i class="fa-solid fa-calendar-day mr-1.5"></i> Feira do Dia
+        </button>
+        <button id="tab-merchants-btn" onclick="switchTab('merchants')" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-all duration-200">
+          <i class="fa-solid fa-users mr-1.5"></i> Feirantes
+        </button>
+        <button id="tab-history-btn" onclick="switchTab('history')" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-all duration-200">
+          <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Histórico
+        </button>
+        <button id="tab-merchant-area-btn" onclick="switchTab('merchantarea')" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-all duration-200">
+          <i class="fa-solid fa-store mr-1.5"></i> Área Feirante
+        </button>
+      </nav>
 
-        try {
-          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-          aviso.className = 'text-xs rounded-lg px-3 py-2 text-center bg-rose-500/20 border border-rose-400/40 text-rose-200';
-          aviso.textContent = '⚠ Erro ao conectar: ' + e.message;
-          aviso.classList.remove('hidden');
-          return;
-        }
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <p id="user-name-display" class="text-sm font-semibold text-white">—</p>
+          <p id="user-role-display" class="text-xs text-lunar-yellow">—</p>
+        </div>
+        <button onclick="handleLogout()" title="Sair" class="w-10 h-10 rounded-xl bg-lunar-black border border-lunar-border hover:border-red-500/50 text-gray-400 hover:text-red-400 transition flex items-center justify-center">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-        const { data: { session: s } } = await supabase.auth.getSession();
-        session = s;
-        if (session) {
-          await carregarPerfil();
-          if (currentProfile) direcionarPorTipo();
-        }
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        supabase.auth.onAuthStateChange(async (event, s) => {
-          session = s;
-          if (event === 'SIGNED_OUT') {
-            currentProfile = null;
-            feiraAtualId = null;
-            mostrarTela('telaAuth');
-          } else if (event === 'SIGNED_IN' && s) {
-            await carregarPerfil();
-            if (currentProfile) direcionarPorTipo();
-          }
-        });
-      }
-
-      async function carregarPerfil() {
-        if (!session) return;
-        const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-        if (error) { console.error('Erro perfil:', error); return; }
-        currentProfile = data;
-      }
-
-      function direcionarPorTipo() {
-        if (!currentProfile) return;
-        if (currentProfile.tipo === 'admin') {
-          document.getElementById('nomeAdminHeader').textContent = currentProfile.nome;
-          mostrarTela('telaAdmin');
-          carregarAdmin();
-        } else {
-          document.getElementById('nomeFeiranteHeader').textContent = currentProfile.nome;
-          mostrarTela('telaFeirante');
-          carregarFeirante();
-        }
-      }
-
-      // ==========================================================
-      // TABS LOGIN/CADASTRO
-      // ==========================================================
-      document.getElementById('tabLogin').addEventListener('click', () => {
-        document.getElementById('tabLogin').className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
-        document.getElementById('tabCadastro').className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
-        document.getElementById('formLoginBox').classList.remove('hidden-view');
-        document.getElementById('formCadastroBox').classList.add('hidden-view');
-      });
-
-      document.getElementById('tabCadastro').addEventListener('click', () => {
-        document.getElementById('tabCadastro').className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
-        document.getElementById('tabLogin').className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
-        document.getElementById('formCadastroBox').classList.remove('hidden-view');
-        document.getElementById('formLoginBox').classList.add('hidden-view');
-      });
-
-      // ==========================================================
-      // LOGIN
-      // ==========================================================
-      document.getElementById('formLogin').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!supabase) { toast('Supabase não configurado', 'error'); return; }
-        const btn = document.getElementById('btnLogin');
-        const erroEl = document.getElementById('erroLogin');
-        btn.disabled = true; btn.textContent = 'Entrando...';
-        erroEl.classList.add('hidden');
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: document.getElementById('loginEmail').value.trim(),
-          password: document.getElementById('loginSenha').value
-        });
-
-        if (error) {
-          erroEl.className = 'text-xs rounded-lg px-3 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200';
-          erroEl.textContent = error.message;
-          erroEl.classList.remove('hidden');
-          btn.disabled = false; btn.textContent = 'Entrar';
-          return;
-        }
-
-        session = data.session;
-        await carregarPerfil();
-        if (currentProfile) {
-          toast('Bem-vindo(a), ' + currentProfile.nome + '!', 'success');
-          direcionarPorTipo();
-        }
-        btn.disabled = false; btn.textContent = 'Entrar';
-      });
-
-      // ==========================================================
-      // CADASTRO
-      // ==========================================================
-      document.getElementById('formCadastro').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!supabase) { toast('Supabase não configurado', 'error'); return; }
-        const btn = document.getElementById('btnCadastro');
-        const erroEl = document.getElementById('erroCadastro');
-        btn.disabled = true; btn.textContent = 'Criando...';
-        erroEl.classList.add('hidden');
-
-        const nome = document.getElementById('cadNome').value.trim();
-        const email = document.getElementById('cadEmail').value.trim();
-        const senha = document.getElementById('cadSenha').value;
-        const tipo = document.getElementById('cadTipo').value;
-
-        const { data, error } = await supabase.auth.signUp({
-          email, password: senha,
-          options: { data: { nome, tipo }, emailRedirectTo: window.location.href }
-        });
-
-        if (error) {
-          erroEl.className = 'text-xs rounded-lg px-3 py-2 bg-rose-500/20 border border-rose-400/40 text-rose-200';
-          erroEl.textContent = error.message;
-          erroEl.classList.remove('hidden');
-          btn.disabled = false; btn.textContent = 'Criar conta';
-          return;
-        }
-
-        if (data.session) {
-          session = data.session;
-          await carregarPerfil();
-          if (currentProfile) direcionarPorTipo();
-          toast('Conta criada!', 'success');
-        } else {
-          toast('Conta criada! Verifique seu e-mail.', 'success');
-          document.getElementById('tabLogin').click();
-          document.getElementById('loginEmail').value = email;
-        }
-        btn.disabled = false; btn.textContent = 'Criar conta';
-      });
-
-      // ==========================================================
-      // LOGOUT
-      // ==========================================================
-      async function logout() {
-        await supabase.auth.signOut();
-        session = null; currentProfile = null; feiraAtualId = null;
-        mostrarTela('telaAuth');
-      }
-      document.getElementById('btnLogoutFeirante').addEventListener('click', logout);
-      document.getElementById('btnLogoutAdmin').addEventListener('click', logout);
-
-      // ==========================================================
-      // FEIRANTE
-      // ==========================================================
-      async function carregarFeirante() {
-        const [fRes, iRes] = await Promise.all([
-          supabase.from('feiras').select('*').order('data_evento', { ascending: false }),
-          supabase.from('inscricoes').select('*').eq('feirante_id', currentProfile.id)
-        ]);
-        feirasCache = fRes.data || [];
-        inscricoesCache = iRes.data || [];
-        renderizarSeletorFeira();
-      }
-
-      function renderizarSeletorFeira() {
-        const sel = document.getElementById('seletorFeira');
-        const inscricoesAtivas = inscricoesCache.filter(i => i.status === 'ativa');
-        const feirasDisponiveis = feirasCache.filter(f => inscricoesAtivas.some(i => i.feira_id === f.id));
-
-        if (feirasDisponiveis.length === 0) {
-          sel.innerHTML = '<option value="">Nenhuma feira inscrita</option>';
-          document.getElementById('conteudoFeirante').classList.add('hidden-view');
-          document.getElementById('avisoSemFeira').classList.remove('hidden-view');
-          document.getElementById('btnDesistir').classList.add('hidden');
-          return;
-        }
-
-        sel.innerHTML = feirasDisponiveis.map(f =>
-          `<option value="${f.id}">${f.nome} · ${formatarData(f.data_evento)}</option>`
-        ).join('');
-
-        if (!feiraAtualId || !feirasDisponiveis.some(f => f.id === feiraAtualId)) {
-          feiraAtualId = feirasDisponiveis[0].id;
-        }
-        sel.value = feiraAtualId;
-
-        document.getElementById('avisoSemFeira').classList.add('hidden-view');
-        document.getElementById('conteudoFeirante').classList.remove('hidden-view');
-        document.getElementById('btnDesistir').classList.remove('hidden');
-
-        carregarDadosFeira();
-      }
-
-      async function carregarDadosFeira() {
-        if (!feiraAtualId) return;
-        const [vRes, dRes, aRes] = await Promise.all([
-          supabase.from('vendas').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id).order('created_at', { ascending: false }),
-          supabase.from('despesas').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id).order('created_at', { ascending: false }),
-          supabase.from('acertos').select('*').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id)
-        ]);
-
-        const jaAcertado = (aRes.data && aRes.data.length > 0);
-        document.getElementById('formVenda').querySelector('button').disabled = jaAcertado;
-        document.getElementById('formDespesa').querySelector('button').disabled = jaAcertado;
-        if (jaAcertado) toast('Esta feira já foi acertada.', 'warn');
-
-        renderizarResumo(vRes.data || [], dRes.data || []);
-      }
-
-      function renderizarResumo(vendas, despesas) {
-        const totalV = vendas.reduce((a, v) => a + Number(v.valor), 0);
-        const totalD = despesas.reduce((a, d) => a + Number(d.valor), 0);
-        const taxa = totalV * TAXA_ADMIN;
-        const saldo = totalV - totalD - taxa;
-
-        document.getElementById('vendasTotaisDisplay').textContent = formatarMoeda(totalV);
-        document.getElementById('despesasTotaisDisplay').textContent = formatarMoeda(totalD);
-        document.getElementById('taxaAdminDisplay').textContent = formatarMoeda(taxa);
-        document.getElementById('saldoAcertoDisplay').textContent = formatarMoeda(saldo);
-        document.getElementById('btnAcertar').disabled = !(saldo > 0 && vendas.length > 0);
-
-        const todas = [
-          ...vendas.map(v => ({ ...v, tipo: 'venda' })),
-          ...despesas.map(d => ({ ...d, tipo: 'despesa' }))
-        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-        const listaEl = document.getElementById('listaTransacoes');
-        if (todas.length === 0) {
-          listaEl.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhuma movimentação ainda.</p>`;
-        } else {
-          listaEl.innerHTML = todas.map(t => {
-            const isV = t.tipo === 'venda';
-            return `
-              <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-2.5 text-sm">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="text-xs">${isV ? '🟢' : '🔴'}</span>
-                  <span class="text-gray-200 truncate">${t.descricao}</span>
-                </div>
-                <span class="${isV ? 'text-emerald-300' : 'text-rose-300'} font-semibold whitespace-nowrap ml-2">
-                  ${isV ? '+' : '-'} ${formatarMoeda(t.valor)}
-                </span>
-              </div>`;
-          }).join('');
-        }
-      }
-
-      document.getElementById('seletorFeira').addEventListener('change', (e) => {
-        feiraAtualId = e.target.value;
-        carregarDadosFeira();
-      });
-
-      document.getElementById('formVenda').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!feiraAtualId) return;
-        const descricao = document.getElementById('vendaDescricao').value.trim();
-        const valor = parseFloat(document.getElementById('vendaValor').value);
-        const pagamento = document.getElementById('vendaPagamento').value;
-        if (!descricao || !valor || valor <= 0) { toast('Preencha descrição e valor', 'error'); return; }
-
-        const { error } = await supabase.from('vendas').insert({
-          feira_id: feiraAtualId, feirante_id: currentProfile.id, descricao, valor, pagamento
-        });
-        if (error) { toast('Erro: ' + error.message, 'error'); return; }
-        toast('Venda registrada!', 'success');
-        document.getElementById('formVenda').reset();
-        carregarDadosFeira();
-      });
-
-      document.getElementById('formDespesa').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!feiraAtualId) return;
-        const descricao = document.getElementById('despesaDescricao').value.trim();
-        const valor = parseFloat(document.getElementById('despesaValor').value);
-        if (!descricao || !valor || valor <= 0) { toast('Preencha descrição e valor', 'error'); return; }
-
-        const { error } = await supabase.from('despesas').insert({
-          feira_id: feiraAtualId, feirante_id: currentProfile.id, descricao, valor
-        });
-        if (error) { toast('Erro: ' + error.message, 'error'); return; }
-        toast('Despesa registrada!', 'success');
-        document.getElementById('formDespesa').reset();
-        carregarDadosFeira();
-      });
-
-      document.getElementById('btnAcertar').addEventListener('click', async () => {
-        if (!feiraAtualId) return;
-        const saldoTxt = document.getElementById('saldoAcertoDisplay').textContent;
-        const saldo = parseFloat(saldoTxt.replace(/[^\d,-]/g, '').replace('.', '').replace(',', '.')) || 0;
-        if (!confirm(`Liquidar acerto de ${formatarMoeda(saldo)}?`)) return;
-
-        const { data: vendas } = await supabase.from('vendas').select('valor').eq('feira_id', feiraAtualId).eq('feirante_id', currentProfile.id);
-        const totalV = (vendas || []).reduce((a, v) => a + Number(v.valor), 0);
-        const taxa = totalV * TAXA_ADMIN;
-
-        const { error } = await supabase.from('acertos').insert({
-          feira_id: feiraAtualId, feirante_id: currentProfile.id,
-          valor_vendas: totalV, taxa_admin: taxa, valor_liquido: saldo
-        });
-        if (error) { toast('Erro: ' + error.message, 'error'); return; }
-        toast('Acerto liquidado com sucesso!', 'success');
-        carregarDadosFeira();
-      });
-
-      document.getElementById('btnDesistir').addEventListener('click', async () => {
-        if (!feiraAtualId) return;
-        if (!confirm('Tem certeza que deseja desistir desta feira?')) return;
-
-        const inscricao = inscricoesCache.find(i => i.feira_id === feiraAtualId && i.status === 'ativa');
-        if (!inscricao) { toast('Inscrição não encontrada', 'error'); return; }
-
-        const { error } = await supabase.from('inscricoes').update({ status: 'desistiu' }).eq('id', inscricao.id);
-        if (error) { toast('Erro: ' + error.message, 'error'); return; }
-        toast('Você desistiu da feira.', 'warn');
-        await carregarFeirante();
-      });
-
-      // ==========================================================
-      // ADMIN
-      // ==========================================================
-      async function carregarAdmin() {
-        const [fRes, uRes, aRes] = await Promise.all([
-          supabase.from('feiras').select('*').order('data_evento', { ascending: false }),
-          supabase.from('profiles').select('*').eq('tipo', 'feirante').order('nome'),
-          supabase.from('acertos').select('*, profiles(nome), feiras(nome)').order('created_at', { ascending: false })
-        ]);
-        feirasCache = fRes.data || [];
-        feirantesCache = uRes.data || [];
-        window._acertosAdmin = aRes.data || [];
-
-        const totalAcertos = window._acertosAdmin.reduce((a, x) => a + Number(x.taxa_admin), 0);
-        document.getElementById('adminTotalFeiras').textContent = feirasCache.length;
-        document.getElementById('adminTotalFeirantes').textContent = feirantesCache.length;
-        document.getElementById('adminTotalAcertos').textContent = formatarMoeda(totalAcertos);
-
-        renderizarFeirasAdmin();
-        renderizarFeirantesAdmin();
-        renderizarAcertosAdmin();
-      }
-
-      function renderizarFeirasAdmin() {
-        const el = document.getElementById('listaFeiras');
-        if (feirasCache.length === 0) {
-          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhuma feira criada ainda.</p>`;
-          return;
-        }
-        el.innerHTML = feirasCache.map(f => `
-          <div class="bg-white/[0.03] border border-border-glow/50 rounded-xl p-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-              <div>
-                <h3 class="text-white font-semibold">${f.nome}</h3>
-                <p class="text-xs text-gray-400">${formatarData(f.data_evento)} · ${f.local || 'Local não definido'}</p>
-              </div>
-              <span class="badge ${f.status === 'aberta' ? 'badge-ativa' : 'badge-concluida'} self-start sm:self-center">
-                ${f.status === 'aberta' ? 'Aberta' : 'Encerrada'}
-              </span>
+    <!-- ============= ABA 1: FEIRA DO DIA ============= -->
+    <section id="tab-event" class="space-y-6">
+      <div class="bg-lunar-card border border-lunar-border rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-lunar-yellow/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 flex-grow">
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Data do Evento</label>
+              <input type="date" id="event-date" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white font-medium focus:border-lunar-yellow focus:outline-none">
             </div>
-            ${f.descricao ? `<p class="text-xs text-gray-400 mb-2">${f.descricao}</p>` : ''}
-            <div class="flex flex-wrap gap-2 mt-3">
-              <button onclick="window._abrirModalFeirante('${f.id}', '${f.nome.replace(/'/g, "\\'")}')" class="btn-outline-gold text-xs px-3 py-1.5 rounded-lg">+ Adicionar feirante</button>
-              <button onclick="window._encerrarFeira('${f.id}', '${f.status}')" class="text-xs px-3 py-1.5 rounded-lg ${f.status === 'aberta' ? 'bg-rose-500/10 text-rose-300 border border-rose-400/30' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-400/30'}">
-                ${f.status === 'aberta' ? 'Encerrar feira' : 'Reabrir feira'}
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Taxa por Feirante (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-gray-400 font-medium">R$</span>
+                <input type="number" id="event-fee" step="0.01" min="0" placeholder="0,00" class="w-full bg-lunar-black border border-lunar-border rounded-xl pl-10 pr-4 py-2.5 text-white font-medium focus:border-lunar-yellow focus:outline-none">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nome / Observação</label>
+              <input type="text" id="event-name" placeholder="Ex: Feira Noturna Centro" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white font-medium focus:border-lunar-yellow focus:outline-none">
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 self-end lg:self-center">
+            <button onclick="saveCurrentEventState()" class="px-4 py-2.5 bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black font-semibold rounded-xl transition shadow flex items-center gap-2 text-sm">
+              <i class="fa-solid fa-floppy-disk"></i> Salvar
+            </button>
+            <button onclick="shareOnWhatsApp()" class="px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl transition shadow flex items-center gap-2 text-sm">
+              <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+            </button>
+            <button onclick="exportToPDF()" class="px-4 py-2.5 bg-lunar-black hover:bg-lunar-border text-white border border-lunar-border font-medium rounded-xl transition flex items-center gap-2 text-sm">
+              <i class="fa-solid fa-file-pdf text-red-400"></i> PDF
+            </button>
+            <button onclick="printReport()" class="px-4 py-2.5 bg-lunar-black hover:bg-lunar-border text-white border border-lunar-border font-medium rounded-xl transition flex items-center gap-2 text-sm">
+              <i class="fa-solid fa-print"></i> Imprimir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+          <span class="text-xs text-gray-400 font-medium flex items-center justify-between">Total Esperado <i class="fa-solid fa-calculator text-gray-500"></i></span>
+          <p id="stat-expected" class="text-2xl font-bold text-white mt-2">R$ 0,00</p>
+          <p id="stat-presence-count" class="text-xs text-gray-400 mt-1">0 participantes</p>
+        </div>
+        <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+          <span class="text-xs text-gray-400 font-medium flex items-center justify-between">Dinheiro <i class="fa-solid fa-money-bill-wave text-green-400"></i></span>
+          <p id="stat-cash" class="text-2xl font-bold text-green-400 mt-2">R$ 0,00</p>
+          <p id="stat-cash-count" class="text-xs text-gray-400 mt-1">0 pagamentos</p>
+        </div>
+        <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+          <span class="text-xs text-gray-400 font-medium flex items-center justify-between">PIX <i class="fa-brands fa-pix text-lunar-yellow"></i></span>
+          <p id="stat-pix" class="text-2xl font-bold text-lunar-yellow mt-2">R$ 0,00</p>
+          <p id="stat-pix-count" class="text-xs text-gray-400 mt-1">0 pagamentos</p>
+        </div>
+        <div class="bg-lunar-card border border-lunar-yellow/40 rounded-2xl p-4 lunar-glow bg-gradient-to-br from-lunar-card to-lunar-dark">
+          <span class="text-xs text-lunar-yellow font-semibold uppercase tracking-wider flex items-center justify-between">Total Arrecadado <i class="fa-solid fa-vault text-lunar-yellow"></i></span>
+          <p id="stat-received" class="text-2xl font-extrabold text-white mt-2">R$ 0,00</p>
+          <p id="stat-paid-count" class="text-xs text-gray-300 mt-1">0 de 0 quitados</p>
+        </div>
+        <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+          <span class="text-xs text-gray-400 font-medium flex items-center justify-between">A Receber <i class="fa-solid fa-hourglass-half text-red-400"></i></span>
+          <p id="stat-pending" class="text-2xl font-bold text-red-400 mt-2">R$ 0,00</p>
+          <p id="stat-pending-count" class="text-xs text-gray-400 mt-1">0 pendentes</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-lunar-card border border-lunar-border rounded-2xl p-5 flex flex-col">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-lunar-border">
+            <div>
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-lunar-yellow"></i> Lista de Chamada
+              </h2>
+              <p class="text-xs text-gray-400">Marque presença e registre o pagamento</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <input type="text" id="search-event-merchant" oninput="renderEventMerchants()" placeholder="Buscar..." class="bg-lunar-black border border-lunar-border text-xs rounded-xl px-3 py-1.5 w-full sm:w-40 focus:outline-none focus:border-lunar-yellow">
+              <button onclick="toggleAllPresence(true)" class="text-xs px-2.5 py-1.5 bg-lunar-black hover:bg-lunar-border border border-lunar-border text-gray-300 rounded-lg whitespace-nowrap">
+                <i class="fa-solid fa-check"></i> Todos
               </button>
             </div>
           </div>
-        `).join('');
-      }
+          <div id="event-merchants-list" class="space-y-2 max-h-[600px] overflow-y-auto pr-1"></div>
+        </div>
 
-      function renderizarFeirantesAdmin() {
-        const el = document.getElementById('listaFeirantes');
-        if (feirantesCache.length === 0) {
-          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhum feirante cadastrado ainda.</p>`;
-          return;
-        }
-        el.innerHTML = feirantesCache.map(f => `
-          <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-3">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-300">👤</div>
-              <div>
-                <p class="text-sm text-white font-medium">${f.nome}</p>
-                <p class="text-[11px] text-gray-500">ID: ${f.id.slice(0, 8)}...</p>
-              </div>
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-lunar-card border border-red-900/40 rounded-2xl p-4">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-lunar-border">
+              <h3 class="text-sm font-bold text-red-400 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Pendentes</h3>
+              <span id="badge-unpaid-count" class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
             </div>
+            <div id="classified-unpaid" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs text-gray-300"></div>
           </div>
-        `).join('');
-      }
+          <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-lunar-border">
+              <h3 class="text-sm font-bold text-green-400 flex items-center gap-2"><i class="fa-solid fa-money-bill-wave"></i> Dinheiro</h3>
+              <span id="badge-cash-count" class="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
+            </div>
+            <div id="classified-cash" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs text-gray-300"></div>
+          </div>
+          <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-lunar-border">
+              <h3 class="text-sm font-bold text-lunar-yellow flex items-center gap-2"><i class="fa-brands fa-pix"></i> PIX</h3>
+              <span id="badge-pix-count" class="bg-lunar-yellow/20 text-lunar-yellow text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
+            </div>
+            <div id="classified-pix" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 text-xs text-gray-300"></div>
+          </div>
+          <div class="bg-lunar-card border border-lunar-border rounded-2xl p-4">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-lunar-border">
+              <h3 class="text-sm font-bold text-gray-400 flex items-center gap-2"><i class="fa-solid fa-user-slash"></i> Ausentes</h3>
+              <span id="badge-absent-count" class="bg-gray-800 text-gray-400 text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
+            </div>
+            <div id="classified-absent" class="space-y-1.5 max-h-32 overflow-y-auto pr-1 text-xs text-gray-400"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      function renderizarAcertosAdmin() {
-        const el = document.getElementById('listaAcertos');
-        const lista = window._acertosAdmin || [];
-        if (lista.length === 0) {
-          el.innerHTML = `<p class="text-sm text-gray-500 text-center py-6">Nenhum acerto recebido ainda.</p>`;
-          return;
-        }
-        el.innerHTML = lista.map(a => `
-          <div class="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-3">
+    <!-- ============= ABA 2: FEIRANTES ============= -->
+    <section id="tab-merchants" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-4 bg-lunar-card border border-lunar-border rounded-2xl p-5 h-fit sticky top-24">
+          <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2" id="merchant-form-title">
+            <i class="fa-solid fa-user-plus text-lunar-yellow"></i> Cadastrar Feirante
+          </h2>
+          <form id="merchant-form" onsubmit="handleMerchantFormSubmit(event)" class="space-y-4">
+            <input type="hidden" id="merchant-id">
             <div>
-              <p class="text-sm text-white font-medium">${a.profiles?.nome || '—'}</p>
-              <p class="text-[11px] text-gray-500">${a.feiras?.nome || '—'} · ${new Date(a.created_at).toLocaleString('pt-BR')}</p>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nome *</label>
+              <input type="text" id="merchant-name" required placeholder="Ex: João da Silva" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
             </div>
-            <div class="text-right">
-              <p class="text-emerald-300 font-semibold">+ ${formatarMoeda(a.taxa_admin)}</p>
-              <p class="text-[11px] text-gray-500">Vendas: ${formatarMoeda(a.valor_vendas)}</p>
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Barraca / Categoria</label>
+              <input type="text" id="merchant-stall" placeholder="Ex: Pastel" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Telefone</label>
+              <input type="text" id="merchant-phone" placeholder="(00) 00000-0000" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            </div>
+            <div class="flex items-center gap-2 pt-2">
+              <button type="submit" class="flex-1 bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black font-semibold py-2.5 rounded-xl transition shadow text-sm">
+                <i class="fa-solid fa-save mr-1"></i> Salvar
+              </button>
+              <button type="button" onclick="resetMerchantForm()" id="merchant-cancel-btn" class="hidden px-3 py-2.5 bg-lunar-black border border-lunar-border hover:bg-lunar-border text-gray-300 rounded-xl text-sm">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="lg:col-span-8 bg-lunar-card border border-lunar-border rounded-2xl p-5">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-3 border-b border-lunar-border">
+            <div>
+              <h2 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users text-lunar-yellow"></i> Feirantes</h2>
+              <p class="text-xs text-gray-400">Total: <span id="total-merchants-count">0</span></p>
+            </div>
+            <input type="text" id="search-merchant-list" oninput="renderMerchantsTable()" placeholder="Pesquisar..." class="bg-lunar-black border border-lunar-border text-xs rounded-xl px-3 py-2 w-full sm:w-60 focus:outline-none focus:border-lunar-yellow">
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-300">
+              <thead class="text-xs uppercase bg-lunar-black/60 text-gray-400 border-b border-lunar-border">
+                <tr><th class="py-3 px-4">Nome</th><th class="py-3 px-4">Barraca</th><th class="py-3 px-4">Contato</th><th class="py-3 px-4 text-right">Ações</th></tr>
+              </thead>
+              <tbody id="merchants-table-body" class="divide-y divide-lunar-border"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= ABA 3: HISTÓRICO ============= -->
+    <section id="tab-history" class="hidden space-y-6">
+      <div class="bg-lunar-card border border-lunar-border rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-6 pb-3 border-b border-lunar-border">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-lunar-yellow"></i> Histórico de Feiras</h2>
+            <p class="text-xs text-gray-400">Consulte relatórios passados</p>
+          </div>
+        </div>
+        <div id="history-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- ============= ABA 4: ÁREA DO FEIRANTE ============= -->
+    <section id="tab-merchantarea" class="hidden space-y-6">
+      <div class="bg-lunar-card border border-lunar-border rounded-2xl p-5">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-lunar-yellow/20 text-lunar-yellow flex items-center justify-center">
+              <i class="fa-solid fa-store text-xl"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-white">Minha Barraca</h2>
+              <p id="merchant-area-name" class="text-xs text-gray-400">Selecione uma feira</p>
             </div>
           </div>
-        `).join('');
+          <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <select id="feirante-event-select" onchange="loadMerchantAreaEvent()" class="bg-lunar-black border border-lunar-border rounded-xl px-4 py-2.5 text-white text-sm focus:border-lunar-yellow focus:outline-none min-w-[220px]">
+              <option value="">Selecione a feira...</option>
+            </select>
+            <button onclick="renderFeiranteEventList()" class="px-3 py-2.5 bg-lunar-black border border-lunar-border hover:bg-lunar-border text-gray-300 rounded-xl text-sm">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="merchant-area-panel" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-lunar-card border border-lunar-border rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-lunar-border">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-ticket text-lunar-yellow"></i> Taxa da Feira</h3>
+              <span id="merchant-fair-date" class="text-xs text-gray-400"></span>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-gray-400">Valor da taxa</span>
+              <span id="merchant-fee-value" class="text-lg font-bold text-white">R$ 0,00</span>
+            </div>
+            <div id="merchant-payment-status" class="rounded-xl p-3 text-center text-sm font-semibold mb-3 bg-gray-800/50 border border-lunar-border text-gray-400">
+              Aguardando lançamento
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="merchantPayFee('CASH')" class="py-2 bg-green-950/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-700/50 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-money-bill-wave"></i> Dinheiro
+              </button>
+              <button onclick="merchantPayFee('PIX')" class="py-2 bg-lunar-yellow/10 hover:bg-lunar-yellow text-lunar-yellow hover:text-lunar-black border border-lunar-yellow/40 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1">
+                <i class="fa-brands fa-pix"></i> PIX
+              </button>
+            </div>
+            <button onclick="merchantPayFee('NONE')" class="w-full mt-2 py-1.5 text-[11px] text-gray-500 hover:text-red-400 transition">
+              <i class="fa-solid fa-rotate-left mr-1"></i> Desfazer
+            </button>
+          </div>
+
+          <div class="bg-lunar-card border border-lunar-yellow/40 rounded-2xl p-5 lunar-glow">
+            <h3 class="text-sm font-bold text-lunar-yellow flex items-center gap-2 mb-3 pb-2 border-b border-lunar-border"><i class="fa-solid fa-chart-pie"></i> Resumo</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between text-gray-300"><span>Taxa paga</span><span id="merchant-sum-fee" class="font-semibold text-green-400">R$ 0,00</span></div>
+              <div class="flex justify-between text-gray-300"><span>Despesas</span><span id="merchant-sum-expenses" class="font-semibold text-red-400">R$ 0,00</span></div>
+              <div class="flex justify-between pt-2 border-t border-lunar-border text-white"><span class="font-bold">Custo total</span><span id="merchant-sum-total" class="font-bold text-lunar-yellow">R$ 0,00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 bg-lunar-card border border-lunar-border rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-lunar-border">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-receipt text-lunar-yellow"></i> Minhas Despesas</h3>
+              <p class="text-xs text-gray-400">Lance os gastos desta feira</p>
+            </div>
+          </div>
+
+          <form id="expense-form" onsubmit="handleExpenseSubmit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-4">
+            <div class="sm:col-span-5">
+              <input type="text" id="expense-desc" required placeholder="Descrição" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-3 py-2 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            </div>
+            <div class="sm:col-span-3">
+              <input type="text" id="expense-category" placeholder="Categoria" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-3 py-2 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <input type="number" id="expense-amount" step="0.01" min="0" required placeholder="R$" class="w-full bg-lunar-black border border-lunar-border rounded-xl px-3 py-2 text-white text-sm focus:border-lunar-yellow focus:outline-none">
+            </div>
+            <div class="sm:col-span-2">
+              <button type="submit" class="w-full h-full bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black font-semibold rounded-xl text-sm transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-plus"></i> Lançar
+              </button>
+            </div>
+          </form>
+
+          <div id="expenses-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div id="merchant-area-empty" class="bg-lunar-card border border-lunar-border rounded-2xl p-12 text-center text-gray-500">
+        <i class="fa-solid fa-calendar-day text-4xl mb-3"></i>
+        <p>Selecione uma feira acima para começar a lançar despesas.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-lunar-border bg-lunar-dark py-4 no-print">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500">
+      Lunar Fair © <span id="footer-year"></span> — Sistema de Controle de Feiras
+    </div>
+  </footer>
+</div>
+
+<!-- Template PDF -->
+<div class="hidden">
+  <div id="pdf-report-template" class="p-8 bg-white text-gray-900 font-sans leading-relaxed">
+    <div class="border-b-2 border-yellow-500 pb-4 mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">🌙 LUNAR FAIR — Relatório</h1>
+        <p id="pdf-event-name" class="text-sm font-semibold text-gray-600 mt-1">Feira</p>
+      </div>
+      <div class="text-right">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">Data</p>
+        <p id="pdf-event-date" class="text-lg font-bold text-yellow-600">--/--/----</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-3 mb-6">
+      <div class="bg-gray-50 p-3 rounded-lg border"><p class="text-[10px] text-gray-500 uppercase font-bold">Taxa</p><p id="pdf-fee" class="text-base font-bold">R$ 0,00</p></div>
+      <div class="bg-green-50 p-3 rounded-lg border border-green-200"><p class="text-[10px] text-green-700 uppercase font-bold">Arrecadado</p><p id="pdf-received" class="text-base font-bold text-green-700">R$ 0,00</p></div>
+      <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200"><p class="text-[10px] text-yellow-800 uppercase font-bold">PIX</p><p id="pdf-pix" class="text-base font-bold text-yellow-800">R$ 0,00</p></div>
+      <div class="bg-red-50 p-3 rounded-lg border border-red-200"><p class="text-[10px] text-red-700 uppercase font-bold">Pendente</p><p id="pdf-pending" class="text-base font-bold text-red-700">R$ 0,00</p></div>
+    </div>
+    <div class="mb-6">
+      <h3 class="text-sm font-bold uppercase text-gray-800 mb-2 border-b pb-1">Detalhamento</h3>
+      <table class="w-full text-xs border-collapse">
+        <thead><tr class="bg-gray-100 border-b border-gray-300"><th class="py-2 px-3 text-left font-bold">Nome</th><th class="py-2 px-3 text-left font-bold">Barraca</th><th class="py-2 px-3 text-left font-bold">Presença</th><th class="py-2 px-3 text-right font-bold">Pagamento</th></tr></thead>
+        <tbody id="pdf-merchants-table" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+    <div class="border-t pt-4 text-center text-[10px] text-gray-500 flex justify-between">
+      <span>Lunar Fair</span><span id="pdf-generated-at"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="custom-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-lunar-card border border-lunar-border rounded-2xl p-6 max-w-md w-full shadow-2xl">
+    <h3 id="modal-title" class="text-lg font-bold text-white mb-2"></h3>
+    <p id="modal-message" class="text-sm text-gray-300 mb-6"></p>
+    <div class="flex justify-end gap-3" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- =================== JAVASCRIPT =================== -->
+<script>
+/* ==========================================================
+   CONFIG SUPABASE — substitua com suas credenciais
+   ========================================================== */
+const SUPABASE_URL = 'https://yfdfquggvmbkhdzqlktm.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PBy6sjHMpf-zFgCSNV_9VA_WXNvVRBT';
+
+let supabaseClient = null;
+if (window.supabase) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+/* ==========================================================
+   ESTADO GLOBAL
+   ========================================================== */
+let currentUser = null;
+let currentProfile = null;
+let merchants = [];
+let eventsHistory = {};
+let currentEvent = { date:'', name:'', fee:0, merchantsData:{} };
+let merchantAreaEvent = null;
+let merchantAreaExpenses = [];
+let merchantRecord = null;
+
+document.getElementById('login-year').textContent = new Date().getFullYear();
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+/* ==========================================================
+   AUTH
+   ========================================================== */
+function switchAuthTab(tab) {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const loginBtn = document.getElementById('auth-tab-login');
+  const signupBtn = document.getElementById('auth-tab-signup');
+  if (tab === 'login') {
+    loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
+    loginBtn.className = 'flex-1 py-2 text-sm font-semibold rounded-lg bg-lunar-yellow text-lunar-black transition';
+    signupBtn.className = 'flex-1 py-2 text-sm font-medium text-gray-300 hover:text-white rounded-lg transition';
+  } else {
+    loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
+    signupBtn.className = 'flex-1 py-2 text-sm font-semibold rounded-lg bg-lunar-yellow text-lunar-black transition';
+    loginBtn.className = 'flex-1 py-2 text-sm font-medium text-gray-300 hover:text-white rounded-lg transition';
+  }
+}
+
+function togglePassword(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  if (!supabaseClient) { showLoginError('Supabase não configurado. Edite SUPABASE_URL e SUPABASE_ANON_KEY.'); return; }
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-submit-btn');
+  document.getElementById('login-error').classList.add('hidden');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    showLoginError(error.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar';
+    return;
+  }
+  await bootApp(data.user);
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  if (!supabaseClient) { showSignupError('Supabase não configurado.'); return; }
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const phone = document.getElementById('signup-phone').value.trim();
+  const role = document.getElementById('signup-role').value;
+  const password = document.getElementById('signup-password').value;
+  const btn = document.getElementById('signup-submit-btn');
+  document.getElementById('signup-error').classList.add('hidden');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Criando...';
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email, password,
+    options: { data: { name, phone, role } }
+  });
+
+  if (error) {
+    showSignupError(error.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar conta';
+    return;
+  }
+
+  showToast('Conta criada! Faça login para continuar.', 'success');
+  switchAuthTab('login');
+  document.getElementById('login-email').value = email;
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar conta';
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function showSignupError(msg) {
+  const el = document.getElementById('signup-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+async function handleLogout() {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  location.reload();
+}
+
+/* ==========================================================
+   BOOT APP
+   ========================================================== */
+async function bootApp(user) {
+  currentUser = user;
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
+
+  const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+  currentProfile = profile || { name: user.email, role: 'merchant' };
+
+  document.getElementById('user-name-display').textContent = currentProfile.name;
+  document.getElementById('user-role-display').textContent = currentProfile.role === 'admin' ? 'Administrador' : 'Feirante';
+
+  await loadMerchants();
+  await loadEventsHistory();
+
+  // Admin vê tudo; feirante só vê "Área Feirante"
+  if (currentProfile.role === 'admin') {
+    document.getElementById('tab-merchantarea-btn').style.display = 'none';
+    switchTab('event');
+    renderMerchantsTable();
+    initializeCurrentEvent();
+  } else {
+    document.getElementById('tab-event-btn').style.display = 'none';
+    document.getElementById('tab-merchants-btn').style.display = 'none';
+    document.getElementById('tab-history-btn').style.display = 'none';
+    switchTab('merchantarea');
+    await initMerchantArea();
+  }
+}
+
+/* ==========================================================
+   NAVEGAÇÃO
+   ========================================================== */
+function switchTab(tabName) {
+  const tabs = ['event', 'merchants', 'history', 'merchantarea'];
+  tabs.forEach(t => {
+    const sec = document.getElementById(`tab-${t}`);
+    const btn = document.getElementById(`tab-${t}-btn`);
+    if (sec) sec.classList.add('hidden');
+    if (btn) btn.className = 'px-4 py-2 text-sm font-medium rounded-lg text-gray-300 hover:text-white transition-all duration-200';
+  });
+  document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+  const activeBtn = document.getElementById(`tab-${tabName}-btn`);
+  if (activeBtn) activeBtn.className = 'px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-lunar-yellow text-lunar-black font-semibold shadow';
+
+  if (tabName === 'history') renderHistoryList();
+  if (tabName === 'merchantarea') initMerchantArea();
+}
+
+/* ==========================================================
+   MERCHANTS (Supabase)
+   ========================================================== */
+async function loadMerchants() {
+  if (!supabaseClient) return;
+  const { data, error } = await supabaseClient.from('merchants').select('*').order('name');
+  if (!error && data) merchants = data;
+}
+
+async function handleMerchantFormSubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('merchant-id').value;
+  const name = document.getElementById('merchant-name').value.trim();
+  const stall = document.getElementById('merchant-stall').value.trim();
+  const phone = document.getElementById('merchant-phone').value.trim();
+  if (!name) return;
+
+  if (id) {
+    const { error } = await supabaseClient.from('merchants').update({ name, stall, phone }).eq('id', id);
+    if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+    showToast('Feirante atualizado!', 'success');
+  } else {
+    const { error } = await supabaseClient.from('merchants').insert({ name, stall, phone });
+    if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+    showToast('Feirante cadastrado!', 'success');
+  }
+  resetMerchantForm();
+  await loadMerchants();
+  renderMerchantsTable();
+  renderEventMerchants();
+}
+
+function editMerchant(id) {
+  const m = merchants.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('merchant-id').value = m.id;
+  document.getElementById('merchant-name').value = m.name;
+  document.getElementById('merchant-stall').value = m.stall || '';
+  document.getElementById('merchant-phone').value = m.phone || '';
+  document.getElementById('merchant-form-title').innerHTML = '<i class="fa-solid fa-user-pen text-lunar-yellow"></i> Editar';
+  document.getElementById('merchant-cancel-btn').classList.remove('hidden');
+  document.getElementById('merchant-form').scrollIntoView({ behavior:'smooth' });
+}
+
+function resetMerchantForm() {
+  document.getElementById('merchant-id').value = '';
+  document.getElementById('merchant-form').reset();
+  document.getElementById('merchant-form-title').innerHTML = '<i class="fa-solid fa-user-plus text-lunar-yellow"></i> Cadastrar Feirante';
+  document.getElementById('merchant-cancel-btn').classList.add('hidden');
+}
+
+function deleteMerchant(id) {
+  const m = merchants.find(x => x.id === id);
+  if (!m) return;
+  showModal('Excluir Feirante', `Remover "${m.name}"?`, [
+    { text:'Cancelar', class:'bg-lunar-black border border-lunar-border text-gray-300' },
+    { text:'Excluir', class:'bg-red-600 hover:bg-red-700 text-white font-semibold', onClick: async () => {
+      const { error } = await supabaseClient.from('merchants').delete().eq('id', id);
+      if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+      await loadMerchants();
+      renderMerchantsTable();
+      renderEventMerchants();
+      showToast('Removido!', 'info');
+    }}
+  ]);
+}
+
+function renderMerchantsTable() {
+  const tbody = document.getElementById('merchants-table-body');
+  const search = (document.getElementById('search-merchant-list').value || '').toLowerCase();
+  const list = merchants.slice().sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'))
+    .filter(m => m.name.toLowerCase().includes(search) || (m.stall||'').toLowerCase().includes(search));
+  document.getElementById('total-merchants-count').textContent = merchants.length;
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-500"><i class="fa-solid fa-users-slash text-2xl mb-2 block"></i>Nenhum feirante.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(m => `
+    <tr class="hover:bg-lunar-black/40">
+      <td class="py-3 px-4 font-semibold text-white">${escapeHtml(m.name)}</td>
+      <td class="py-3 px-4 text-gray-400">${escapeHtml(m.stall||'-')}</td>
+      <td class="py-3 px-4 text-gray-400">${escapeHtml(m.phone||'-')}</td>
+      <td class="py-3 px-4 text-right">
+        <div class="flex justify-end gap-2">
+          <button onclick="editMerchant('${m.id}')" class="p-1.5 bg-lunar-black hover:bg-lunar-border text-lunar-yellow rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button onclick="deleteMerchant('${m.id}')" class="p-1.5 bg-lunar-black hover:bg-lunar-border text-red-400 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+/* ==========================================================
+   EVENTO DO DIA (Admin)
+   ========================================================== */
+async function initializeCurrentEvent() {
+  const dateInput = document.getElementById('event-date');
+  if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+  const dateVal = dateInput.value;
+
+  // Carrega evento do Supabase se existir
+  const { data: ev } = await supabaseClient.from('events').select('*').eq('date', dateVal).maybeSingle();
+  if (ev) {
+    currentEvent = { date: ev.date, name: ev.name || '', fee: ev.fee, merchantsData: {} };
+    document.getElementById('event-fee').value = ev.fee;
+    document.getElementById('event-name').value = ev.name || '';
+    // Carrega presenças
+    const { data: parts } = await supabaseClient.from('event_merchants').select('*').eq('event_id', ev.id);
+    if (parts) parts.forEach(p => {
+      currentEvent.merchantsData[p.merchant_id] = { present: p.present, payment: p.payment_method };
+    });
+    currentEvent._supabaseId = ev.id;
+  } else {
+    currentEvent = { date: dateVal, name:'', fee:0, merchantsData:{} };
+  }
+  syncCurrentEventMerchants();
+  updateCalculationsAndUI();
+  renderEventMerchants();
+}
+
+document.getElementById('event-date').addEventListener('change', async (e) => {
+  await initializeCurrentEvent();
+});
+document.getElementById('event-fee').addEventListener('input', (e) => {
+  currentEvent.fee = parseFloat(e.target.value) || 0;
+  updateCalculationsAndUI();
+});
+document.getElementById('event-name').addEventListener('input', (e) => {
+  currentEvent.name = e.target.value;
+});
+
+function syncCurrentEventMerchants() {
+  merchants.forEach(m => {
+    if (!currentEvent.merchantsData[m.id]) {
+      currentEvent.merchantsData[m.id] = { present: true, payment: 'NONE' };
+    }
+  });
+}
+
+function togglePresence(merchantId) {
+  const d = currentEvent.merchantsData[merchantId];
+  if (!d) return;
+  d.present = !d.present;
+  if (!d.present) d.payment = 'NONE';
+  updateCalculationsAndUI();
+  renderEventMerchants();
+}
+
+function toggleAllPresence(status) {
+  merchants.forEach(m => {
+    if (!currentEvent.merchantsData[m.id]) currentEvent.merchantsData[m.id] = { present: status, payment:'NONE' };
+    else {
+      currentEvent.merchantsData[m.id].present = status;
+      if (!status) currentEvent.merchantsData[m.id].payment = 'NONE';
+    }
+  });
+  updateCalculationsAndUI();
+  renderEventMerchants();
+}
+
+function registerPayment(merchantId, method) {
+  const d = currentEvent.merchantsData[merchantId];
+  if (!d || !d.present) { showToast('Feirante ausente!', 'warning'); return; }
+  d.payment = method;
+  updateCalculationsAndUI();
+  renderEventMerchants();
+}
+
+function undoPayment(merchantId) {
+  const d = currentEvent.merchantsData[merchantId];
+  if (!d) return;
+  d.payment = 'NONE';
+  updateCalculationsAndUI();
+  renderEventMerchants();
+}
+
+function renderEventMerchants() {
+  const container = document.getElementById('event-merchants-list');
+  const search = (document.getElementById('search-event-merchant').value || '').toLowerCase();
+  const list = merchants.slice().sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'))
+    .filter(m => m.name.toLowerCase().includes(search) || (m.stall||'').toLowerCase().includes(search));
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="text-center py-10 text-gray-500"><i class="fa-solid fa-users-slash text-3xl mb-2"></i><p>Nenhum feirante.</p></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(m => {
+    const d = currentEvent.merchantsData[m.id] || { present:true, payment:'NONE' };
+    let cardClass = 'border-lunar-border bg-lunar-black/40';
+    let badge = '<span class="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">Pendente</span>';
+    if (!d.present) { cardClass='border-gray-800 bg-lunar-black/20 opacity-60'; badge='<span class="text-xs bg-red-900/30 text-red-400 px-2 py-0.5 rounded-full">Ausente</span>'; }
+    else if (d.payment==='CASH') { cardClass='border-green-500/40 bg-green-950/10'; badge='<span class="text-xs bg-green-500/20 text-green-400 font-semibold px-2 py-0.5 rounded-full"><i class="fa-solid fa-money-bill-wave"></i> Dinheiro</span>'; }
+    else if (d.payment==='PIX') { cardClass='border-lunar-yellow/40 bg-lunar-yellow/5'; badge='<span class="text-xs bg-lunar-yellow/20 text-lunar-yellow font-semibold px-2 py-0.5 rounded-full"><i class="fa-brands fa-pix"></i> PIX</span>'; }
+
+    return `
+      <div class="border ${cardClass} rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <button onclick="togglePresence('${m.id}')" class="w-7 h-7 rounded-lg border flex items-center justify-center ${d.present ? 'bg-lunar-yellow text-lunar-black border-lunar-yellow' : 'bg-lunar-black text-gray-600 border-lunar-border'}">
+            <i class="fa-solid ${d.present ? 'fa-check' : 'fa-xmark'} text-xs"></i>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="font-semibold text-sm text-white ${!d.present ? 'line-through text-gray-500' : ''}">${escapeHtml(m.name)}</h4>
+              ${badge}
+            </div>
+            <p class="text-xs text-gray-400">${escapeHtml(m.stall||'Sem barraca')}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          ${d.present ? (d.payment==='NONE' ? `
+            <button onclick="registerPayment('${m.id}','CASH')" class="px-3 py-1.5 bg-green-950/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-700/50 rounded-lg text-xs font-semibold"><i class="fa-solid fa-money-bill-wave"></i> Dinheiro</button>
+            <button onclick="registerPayment('${m.id}','PIX')" class="px-3 py-1.5 bg-lunar-yellow/10 hover:bg-lunar-yellow text-lunar-yellow hover:text-lunar-black border border-lunar-yellow/40 rounded-lg text-xs font-semibold"><i class="fa-brands fa-pix"></i> PIX</button>
+          ` : `<button onclick="undoPayment('${m.id}')" class="px-3 py-1.5 bg-red-950/30 hover:bg-red-900/50 text-red-400 border border-red-800/40 rounded-lg text-xs"><i class="fa-solid fa-rotate-left"></i> Desfazer</button>`)
+          : '<span class="text-xs text-gray-500 italic">Ausente</span>'}
+        </div>
+      </div>`;
+  }).join('');
+  renderClassifiedLists();
+}
+
+function renderClassifiedLists() {
+  const fee = currentEvent.fee || 0;
+  const cash=[], pix=[], unpaid=[], absent=[];
+  merchants.forEach(m => {
+    const d = currentEvent.merchantsData[m.id] || { present:true, payment:'NONE' };
+    if (!d.present) absent.push(m);
+    else if (d.payment==='CASH') cash.push(m);
+    else if (d.payment==='PIX') pix.push(m);
+    else unpaid.push(m);
+  });
+  const sort = (a,b)=>a.name.localeCompare(b.name,'pt-BR');
+  cash.sort(sort); pix.sort(sort); unpaid.sort(sort); absent.sort(sort);
+  document.getElementById('badge-unpaid-count').textContent = unpaid.length;
+  document.getElementById('badge-cash-count').textContent = cash.length;
+  document.getElementById('badge-pix-count').textContent = pix.length;
+  document.getElementById('badge-absent-count').textContent = absent.length;
+
+  document.getElementById('classified-unpaid').innerHTML = unpaid.length === 0
+    ? '<p class="text-gray-500 italic">Nenhum pendente!</p>'
+    : unpaid.map(m=>`<div class="flex justify-between py-1 border-b border-lunar-border/40 last:border-0"><span class="text-red-300">• ${escapeHtml(m.name)}</span><span class="text-red-400 font-semibold">${formatCurrency(fee)}</span></div>`).join('');
+  document.getElementById('classified-cash').innerHTML = cash.length === 0
+    ? '<p class="text-gray-500 italic">—</p>'
+    : cash.map(m=>`<div class="flex justify-between py-1 border-b border-lunar-border/40 last:border-0"><span class="text-gray-200">• ${escapeHtml(m.name)}</span><span class="text-green-400 font-semibold">${formatCurrency(fee)}</span></div>`).join('');
+  document.getElementById('classified-pix').innerHTML = pix.length === 0
+    ? '<p class="text-gray-500 italic">—</p>'
+    : pix.map(m=>`<div class="flex justify-between py-1 border-b border-lunar-border/40 last:border-0"><span class="text-gray-200">• ${escapeHtml(m.name)}</span><span class="text-lunar-yellow font-semibold">${formatCurrency(fee)}</span></div>`).join('');
+  document.getElementById('classified-absent').innerHTML = absent.length === 0
+    ? '<p class="text-gray-500 italic">—</p>'
+    : absent.map(m=>`<div class="py-0.5 text-gray-400">• ${escapeHtml(m.name)}</div>`).join('');
+}
+
+function updateCalculationsAndUI() {
+  const fee = currentEvent.fee || 0;
+  let presence=0, cash=0, pix=0, pending=0, absent=0;
+  merchants.forEach(m => {
+    const d = currentEvent.merchantsData[m.id] || { present:true, payment:'NONE' };
+    if (d.present) {
+      presence++;
+      if (d.payment==='CASH') cash++; else if (d.payment==='PIX') pix++; else pending++;
+    } else absent++;
+  });
+  const totalExpected = presence*fee;
+  const totalCash = cash*fee;
+  const totalPix = pix*fee;
+  const totalReceived = totalCash+totalPix;
+  const totalPending = pending*fee;
+
+  document.getElementById('stat-expected').textContent = formatCurrency(totalExpected);
+  document.getElementById('stat-presence-count').textContent = `${presence} presentes, ${absent} ausentes`;
+  document.getElementById('stat-cash').textContent = formatCurrency(totalCash);
+  document.getElementById('stat-cash-count').textContent = `${cash} pagamentos`;
+  document.getElementById('stat-pix').textContent = formatCurrency(totalPix);
+  document.getElementById('stat-pix-count').textContent = `${pix} pagamentos`;
+  document.getElementById('stat-received').textContent = formatCurrency(totalReceived);
+  document.getElementById('stat-paid-count').textContent = `${cash+pix} de ${presence} quitados`;
+  document.getElementById('stat-pending').textContent = formatCurrency(totalPending);
+  document.getElementById('stat-pending-count').textContent = `${pending} devendo`;
+  renderClassifiedLists();
+}
+
+async function saveCurrentEventState() {
+  if (!supabaseClient) return;
+  const dateVal = document.getElementById('event-date').value;
+  if (!dateVal) { showToast('Selecione a data!', 'warning'); return; }
+  const fee = parseFloat(document.getElementById('event-fee').value) || 0;
+  const name = document.getElementById('event-name').value.trim();
+
+  // Upsert evento
+  const { data: existing } = await supabaseClient.from('events').select('id').eq('date', dateVal).maybeSingle();
+  let eventId;
+  if (existing) {
+    eventId = existing.id;
+    await supabaseClient.from('events').update({ fee, name }).eq('id', eventId);
+  } else {
+    const { data: created, error } = await supabaseClient.from('events').insert({ date: dateVal, fee, name, created_by: currentUser.id }).select().single();
+    if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+    eventId = created.id;
+  }
+
+  // Upsert presenças
+  const rows = merchants.map(m => {
+    const d = currentEvent.merchantsData[m.id] || { present:true, payment:'NONE' };
+    return { event_id: eventId, merchant_id: m.id, present: d.present, payment_method: d.payment, updated_at: new Date().toISOString() };
+  });
+  if (rows.length > 0) {
+    await supabaseClient.from('event_merchants').upsert(rows, { onConflict: 'event_id,merchant_id' });
+  }
+
+  currentEvent._supabaseId = eventId;
+  await loadEventsHistory();
+  showToast(`Feira de ${formatDateBR(dateVal)} salva!`, 'success');
+}
+
+async function loadEventsHistory() {
+  if (!supabaseClient) return;
+  const { data } = await supabaseClient.from('events').select('*, event_merchants(*)').order('date', { ascending: false });
+  if (!data) return;
+  eventsHistory = {};
+  data.forEach(ev => {
+    const md = {};
+    (ev.event_merchants || []).forEach(p => {
+      md[p.merchant_id] = { present: p.present, payment: p.payment_method };
+    });
+    eventsHistory[ev.date] = {
+      date: ev.date, name: ev.name, fee: Number(ev.fee),
+      merchantsData: md, _supabaseId: ev.id
+    };
+  });
+  renderHistoryList();
+}
+
+function renderHistoryList() {
+  const container = document.getElementById('history-list');
+  const dates = Object.keys(eventsHistory).sort().reverse();
+  if (dates.length === 0) {
+    container.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500"><i class="fa-solid fa-folder-open text-4xl mb-3"></i><p>Nenhuma feira salva.</p></div>';
+    return;
+  }
+  container.innerHTML = dates.map(dateKey => {
+    const ev = eventsHistory[dateKey];
+    let pres=0, cash=0, pix=0, pending=0;
+    Object.values(ev.merchantsData||{}).forEach(d => {
+      if (d.present) { pres++; if (d.payment==='CASH') cash++; else if (d.payment==='PIX') pix++; else pending++; }
+    });
+    const total = (cash+pix)*(ev.fee||0);
+    return `
+      <div class="bg-lunar-black border border-lunar-border rounded-xl p-4 flex flex-col justify-between hover:border-lunar-yellow/50 transition">
+        <div>
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="font-bold text-white">${formatDateBR(ev.date)}</h3>
+              <p class="text-xs text-lunar-yellow">${escapeHtml(ev.name||'Feira')}</p>
+            </div>
+            <span class="bg-lunar-card text-gray-300 text-xs px-2.5 py-1 rounded-md border border-lunar-border">${formatCurrency(ev.fee||0)}</span>
+          </div>
+          <div class="space-y-1 my-3 text-xs text-gray-400">
+            <div class="flex justify-between"><span>Presentes:</span><strong class="text-white">${pres}</strong></div>
+            <div class="flex justify-between"><span>Dinheiro / PIX:</span><strong class="text-white">${cash} / ${pix}</strong></div>
+            <div class="flex justify-between"><span>Pendentes:</span><strong class="text-red-400 font-bold">${pending}</strong></div>
+            <div class="flex justify-between border-t border-lunar-border pt-1 mt-1"><span class="font-semibold text-gray-200">Arrecadado:</span><strong class="text-lunar-yellow font-bold">${formatCurrency(total)}</strong></div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2 mt-2 pt-2 border-t border-lunar-border/50">
+          <div class="flex gap-2">
+            <button onclick="loadEventFromHistory('${ev.date}')" class="flex-1 bg-lunar-yellow hover:bg-lunar-yellowHover text-lunar-black text-xs font-semibold py-2 rounded-lg">Abrir</button>
+            <button onclick="deleteEventFromHistory('${ev.date}')" class="px-2.5 bg-red-950/30 hover:bg-red-900 text-red-400 text-xs rounded-lg border border-red-800/40"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="shareHistoryOnWhatsApp('${ev.date}')" class="flex-1 bg-green-950/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-700/50 text-xs font-medium py-1.5 rounded-lg"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+            <button onclick="exportHistoryToPDF('${ev.date}')" class="flex-1 bg-lunar-card hover:bg-lunar-border text-gray-200 border border-lunar-border text-xs font-medium py-1.5 rounded-lg"><i class="fa-solid fa-file-pdf text-red-400"></i> PDF</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadEventFromHistory(dateKey) {
+  document.getElementById('event-date').value = dateKey;
+  await initializeCurrentEvent();
+  switchTab('event');
+}
+
+function deleteEventFromHistory(dateKey) {
+  showModal('Excluir Feira', `Apagar feira de ${formatDateBR(dateKey)}?`, [
+    { text:'Cancelar', class:'bg-lunar-black border border-lunar-border text-gray-300' },
+    { text:'Excluir', class:'bg-red-600 hover:bg-red-700 text-white', onClick: async () => {
+      const ev = eventsHistory[dateKey];
+      if (ev && ev._supabaseId) {
+        await supabaseClient.from('events').delete().eq('id', ev._supabaseId);
       }
+      await loadEventsHistory();
+      showToast('Excluída!', 'info');
+    }}
+  ]);
+}
 
-      document.getElementById('formFeira').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nome = document.getElementById('feiraNome').value.trim();
-        const data = document.getElementById('feiraData').value;
-        const local = document.getElementById('feiraLocal').value.trim();
-        const descricao = document.getElementById('feiraDescricao').value.trim();
+/* ==========================================================
+   ÁREA DO FEIRANTE
+   ========================================================== */
+async function initMerchantArea() {
+  if (!supabaseClient) return;
+  // Buscar merchant do feirante logado
+  const { data: merc } = await supabaseClient.from('merchants').select('*').eq('owner_id', currentUser.id).maybeSingle();
+  merchantRecord = merc;
 
-        const { error } = await supabase.from('feiras').insert({
-          nome, data_evento: data, local: local || null, descricao: descricao || null,
-          admin_id: currentProfile.id
-        });
-        if (error) { toast('Erro: ' + error.message, 'error'); return; }
-        toast('Feira criada!', 'success');
-        document.getElementById('formFeira').reset();
-        await carregarAdmin();
-      });
+  if (!merchantRecord) {
+    document.getElementById('merchant-area-name').textContent = 'Nenhuma barraca vinculada. Peça ao admin para criar seu cadastro.';
+    document.getElementById('merchant-area-empty').classList.remove('hidden');
+    document.getElementById('merchant-area-panel').classList.add('hidden');
+    return;
+  }
+  document.getElementById('merchant-area-name').textContent = `${merchantRecord.name} — ${merchantRecord.stall || 'Sem barraca'}`;
 
-      window._encerrarFeira = async (id, statusAtual) => {
-        const novo = statusAtual === 'aberta' ? 'encerrada' : 'aberta';
-        const { error } = await supabase.from('feiras').update({ status: novo }).eq('id', id);
-        if (error) { toast('Erro', 'error'); return; }
-        toast(`Feira ${novo}!`, 'success');
-        await carregarAdmin();
-      };
+  // Lista de feiras
+  const { data: evs } = await supabaseClient.from('events').select('*').order('date', { ascending: false });
+  const sel = document.getElementById('feirante-event-select');
+  sel.innerHTML = '<option value="">Selecione a feira...</option>' +
+    (evs || []).map(e => `<option value="${e.id}">${formatDateBR(e.date)} — ${e.name || 'Feira'} (${formatCurrency(e.fee)})</option>`).join('');
 
-      window._abrirModalFeirante = (feiraId, nome) => {
-        feiraModalId = feiraId;
-        document.getElementById('modalFeiraNome').textContent = 'Feira: ' + nome;
-        const sel = document.getElementById('modalSelectFeirante');
-        if (feirantesCache.length === 0) {
-          sel.innerHTML = '<option value="">Nenhum feirante cadastrado</option>';
-        } else {
-          sel.innerHTML = '<option value="">Selecione...</option>' + feirantesCache.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
-        }
-        document.getElementById('modalAdicionarFeirante').classList.remove('hidden-view');
-      };
+  document.getElementById('merchant-area-panel').classList.add('hidden');
+  document.getElementById('merchant-area-empty').classList.remove('hidden');
+}
 
-      document.getElementById('modalCancelar').addEventListener('click', () => {
-        document.getElementById('modalAdicionarFeirante').classList.add('hidden-view');
-      });
+async function loadMerchantAreaEvent() {
+  const eventId = document.getElementById('feirante-event-select').value;
+  const panel = document.getElementById('merchant-area-panel');
+  const empty = document.getElementById('merchant-area-empty');
+  if (!eventId) { panel.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+  panel.classList.remove('hidden'); empty.classList.add('hidden');
 
-      document.getElementById('modalConfirmar').addEventListener('click', async () => {
-        const feiranteId = document.getElementById('modalSelectFeirante').value;
-        if (!feiranteId || !feiraModalId) { toast('Selecione um feirante', 'error'); return; }
+  const { data: ev } = await supabaseClient.from('events').select('*').eq('id', eventId).single();
+  merchantAreaEvent = ev;
 
-        const { error } = await supabase.from('inscricoes').insert({
-          feira_id: feiraModalId, feirante_id: feiranteId, status: 'ativa'
-        });
-        if (error) {
-          if (error.code === '23505') toast('Feirante já inscrito nesta feira.', 'warn');
-          else toast('Erro: ' + error.message, 'error');
-          return;
-        }
-        toast('Feirante adicionado!', 'success');
-        document.getElementById('modalAdicionarFeirante').classList.add('hidden-view');
-        await carregarAdmin();
-      });
+  document.getElementById('merchant-fair-date').textContent = formatDateBR(ev.date);
+  document.getElementById('merchant-fee-value').textContent = formatCurrency(ev.fee);
 
-      // Tabs admin
-      const tabFeiras = document.getElementById('tabAdminFeiras');
-      const tabFeirantes = document.getElementById('tabAdminFeirantes');
-      const tabAcertos = document.getElementById('tabAdminAcertos');
-      function ativarTab(tab) {
-        [tabFeiras, tabFeirantes, tabAcertos].forEach(t => {
-          t.className = 'flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition';
-        });
-        tab.className = 'flex-1 py-2 rounded-lg text-sm font-semibold bg-moon-gold text-deep-navy transition';
-        ['painelFeiras', 'painelFeirantes', 'painelAcertos'].forEach(p => document.getElementById(p).classList.add('hidden-view'));
-      }
-      tabFeiras.addEventListener('click', () => { ativarTab(tabFeiras); document.getElementById('painelFeiras').classList.remove('hidden-view'); });
-      tabFeirantes.addEventListener('click', () => { ativarTab(tabFeirantes); document.getElementById('painelFeirantes').classList.remove('hidden-view'); });
-      tabAcertos.addEventListener('click', () => { ativarTab(tabAcertos); document.getElementById('painelAcertos').classList.remove('hidden-view'); });
+  // Garante vínculo event_merchants
+  const { data: part } = await supabaseClient.from('event_merchants').select('*')
+    .eq('event_id', eventId).eq('merchant_id', merchantRecord.id).maybeSingle();
+  if (!part) {
+    await supabaseClient.from('event_merchants').insert({
+      event_id: eventId, merchant_id: merchantRecord.id, present: true, payment_method: 'NONE'
+    });
+    updatePaymentStatusUI('NONE');
+  } else {
+    updatePaymentStatusUI(part.payment_method);
+  }
 
-      boot();
-    })();
-  </script>
+  await loadMerchantExpenses(eventId);
+  updateMerchantSummary();
+}
+
+function updatePaymentStatusUI(method) {
+  const el = document.getElementById('merchant-payment-status');
+  if (method === 'CASH') {
+    el.className = 'rounded-xl p-3 text-center text-sm font-semibold mb-3 bg-green-950/40 border border-green-700/50 text-green-400';
+    el.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> Pago em Dinheiro';
+  } else if (method === 'PIX') {
+    el.className = 'rounded-xl p-3 text-center text-sm font-semibold mb-3 bg-lunar-yellow/10 border border-lunar-yellow/40 text-lunar-yellow';
+    el.innerHTML = '<i class="fa-brands fa-pix mr-1"></i> Pago via PIX';
+  } else {
+    el.className = 'rounded-xl p-3 text-center text-sm font-semibold mb-3 bg-gray-800/50 border border-lunar-border text-gray-400';
+    el.innerHTML = '<i class="fa-solid fa-hourglass-half mr-1"></i> Taxa pendente';
+  }
+}
+
+async function merchantPayFee(method) {
+  if (!merchantAreaEvent) return;
+  const { error } = await supabaseClient.from('event_merchants').update({ payment_method: method }).eq('event_id', merchantAreaEvent.id).eq('merchant_id', merchantRecord.id);
+  if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+  updatePaymentStatusUI(method);
+  updateMerchantSummary();
+  if (method !== 'NONE') showToast('Pagamento registrado!', 'success');
+  else showToast('Pagamento desfeito.', 'info');
+}
+
+async function loadMerchantExpenses(eventId) {
+  const { data } = await supabaseClient.from('expenses').select('*')
+    .eq('event_id', eventId).eq('merchant_id', merchantRecord.id)
+    .order('created_at', { ascending: false });
+  merchantAreaExpenses = data || [];
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const container = document.getElementById('expenses-list');
+  if (merchantAreaExpenses.length === 0) {
+    container.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fa-solid fa-receipt text-3xl mb-2"></i><p>Nenhuma despesa lançada.</p></div>';
+    return;
+  }
+  container.innerHTML = merchantAreaExpenses.map(e => `
+    <div class="bg-lunar-black/40 border border-lunar-border rounded-xl p-3 flex items-center justify-between">
+      <div class="flex-1">
+        <p class="font-semibold text-white text-sm">${escapeHtml(e.description)}</p>
+        <p class="text-xs text-gray-400">${escapeHtml(e.category||'Outros')}</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-red-400">${formatCurrency(e.amount)}</span>
+        <button onclick="deleteExpense('${e.id}')" class="w-8 h-8 rounded-lg bg-red-950/30 hover:bg-red-900/50 text-red-400 border border-red-800/40 transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+async function handleExpenseSubmit(e) {
+  e.preventDefault();
+  if (!merchantAreaEvent || !merchantRecord) { showToast('Selecione uma feira!', 'warning'); return; }
+  const desc = document.getElementById('expense-desc').value.trim();
+  const cat = document.getElementById('expense-category').value.trim() || 'Outros';
+  const amount = parseFloat(document.getElementById('expense-amount').value);
+  if (!desc || isNaN(amount) || amount < 0) return;
+
+  const { error } = await supabaseClient.from('expenses').insert({
+    event_id: merchantAreaEvent.id,
+    merchant_id: merchantRecord.id,
+    description: desc,
+    amount,
+    category: cat
+  });
+  if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+
+  document.getElementById('expense-form').reset();
+  await loadMerchantExpenses(merchantAreaEvent.id);
+  updateMerchantSummary();
+  showToast('Despesa lançada!', 'success');
+}
+
+async function deleteExpense(id) {
+  showModal('Excluir Despesa', 'Remover esta despesa?', [
+    { text:'Cancelar', class:'bg-lunar-black border border-lunar-border text-gray-300' },
+    { text:'Excluir', class:'bg-red-600 hover:bg-red-700 text-white', onClick: async () => {
+      await supabaseClient.from('expenses').delete().eq('id', id);
+      await loadMerchantExpenses(merchantAreaEvent.id);
+      updateMerchantSummary();
+      showToast('Removida!', 'info');
+    }}
+  ]);
+}
+
+function updateMerchantSummary() {
+  const fee = merchantAreaEvent?.fee || 0;
+  const { data: part } = {}; // placeholder
+  // Buscar status atual direto do DOM
+  const statusEl = document.getElementById('merchant-payment-status');
+  const paid = statusEl.textContent.includes('Pago');
+  const sumExpenses = merchantAreaExpenses.reduce((s, e) => s + Number(e.amount), 0);
+  const sumFee = paid ? fee : 0;
+  document.getElementById('merchant-sum-fee').textContent = formatCurrency(sumFee);
+  document.getElementById('merchant-sum-expenses').textContent = formatCurrency(sumExpenses);
+  document.getElementById('merchant-sum-total').textContent = formatCurrency(sumFee + sumExpenses);
+}
+
+/* ==========================================================
+   EXPORT PDF / WHATSAPP / IMPRESSÃO
+   ========================================================== */
+function exportToPDF(evObj = null) {
+  const ev = evObj || currentEvent;
+  document.getElementById('pdf-event-name').textContent = ev.name || 'Feira';
+  document.getElementById('pdf-event-date').textContent = formatDateBR(ev.date);
+  document.getElementById('pdf-fee').textContent = formatCurrency(ev.fee||0);
+
+  let cash=0, pix=0, pending=0;
+  const sorted = merchants.slice().sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+  const tbody = document.getElementById('pdf-merchants-table');
+  tbody.innerHTML = sorted.map(m => {
+    const d = ev.merchantsData[m.id] || { present:true, payment:'NONE' };
+    let status='Ausente', pay='N/A';
+    if (d.present) {
+      status='Presente';
+      if (d.payment==='CASH') { cash++; pay='Dinheiro'; }
+      else if (d.payment==='PIX') { pix++; pay='PIX'; }
+      else { pending++; pay='PENDENTE'; }
+    }
+    return `<tr>
+      <td class="py-2 px-3 font-semibold">${escapeHtml(m.name)}</td>
+      <td class="py-2 px-3">${escapeHtml(m.stall||'-')}</td>
+      <td class="py-2 px-3">${status}</td>
+      <td class="py-2 px-3 text-right ${pay==='PENDENTE'?'text-red-600 font-bold':''}">${pay}</td>
+    </tr>`;
+  }).join('');
+
+  const fee = ev.fee||0;
+  document.getElementById('pdf-received').textContent = formatCurrency((cash+pix)*fee);
+  document.getElementById('pdf-pix').textContent = formatCurrency(pix*fee);
+  document.getElementById('pdf-pending').textContent = formatCurrency(pending*fee);
+  document.getElementById('pdf-generated-at').textContent = `Gerado em ${new Date().toLocaleString('pt-BR')}`;
+
+  showToast('Gerando PDF...', 'info');
+  const el = document.getElementById('pdf-report-template');
+  html2pdf().set({
+    margin:10, filename:`Relatorio_${ev.date}.pdf`,
+    image:{type:'jpeg', quality:0.98},
+    html2canvas:{scale:2},
+    jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
+  }).from(el).save().then(()=>showToast('PDF baixado!','success'))
+    .catch(e=>{ console.error(e); showToast('Erro no PDF', 'error'); });
+}
+
+function exportHistoryToPDF(dateKey) {
+  const ev = eventsHistory[dateKey];
+  if (ev) exportToPDF(ev);
+}
+
+function shareOnWhatsApp(evObj = null) {
+  const ev = evObj || currentEvent;
+  const fee = ev.fee||0;
+  let pres=0, cash=0, pix=0, pending=0;
+  const pendingNames = [];
+  merchants.forEach(m => {
+    const d = ev.merchantsData[m.id] || { present:true, payment:'NONE' };
+    if (d.present) {
+      pres++;
+      if (d.payment==='CASH') cash++; else if (d.payment==='PIX') pix++;
+      else { pending++; pendingNames.push(m.name); }
+    }
+  });
+  pendingNames.sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  let msg = `🌙 *RESUMO LUNAR FAIR*\n📅 ${formatDateBR(ev.date)}\n`;
+  if (ev.name) msg += `📍 ${ev.name}\n`;
+  msg += `💰 Taxa: ${formatCurrency(fee)}\n\n📊 *Estatísticas:*\n`;
+  msg += `• Presentes: ${pres}\n• Dinheiro: ${cash} (${formatCurrency(cash*fee)})\n• PIX: ${pix} (${formatCurrency(pix*fee)})\n`;
+  msg += `✅ *Total: ${formatCurrency((cash+pix)*fee)}*\n\n`;
+  if (pending>0) {
+    msg += `⚠️ *Pendentes (${pending}): ${formatCurrency(pending*fee)}*\n`;
+    pendingNames.forEach(n => msg += ` - ${n}\n`);
+  } else msg += `🎉 Todos quitaram!\n`;
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function shareHistoryOnWhatsApp(dateKey) {
+  const ev = eventsHistory[dateKey];
+  if (ev) shareOnWhatsApp(ev);
+}
+
+function printReport() { window.print(); }
+
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+function formatCurrency(v) {
+  return new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(v||0);
+}
+function formatDateBR(s) {
+  if (!s) return '';
+  const p = s.split('-');
+  return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : s;
+}
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function showToast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  let cls='bg-lunar-dark border-lunar-yellow text-white', icon='fa-circle-info text-lunar-yellow';
+  if (type==='success'){cls='bg-lunar-dark border-green-500 text-white';icon='fa-circle-check text-green-400';}
+  else if (type==='warning'){cls='bg-lunar-dark border-yellow-500 text-white';icon='fa-triangle-exclamation text-yellow-400';}
+  else if (type==='error'){cls='bg-lunar-dark border-red-500 text-white';icon='fa-circle-xmark text-red-400';}
+  t.className = `border ${cls} px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-medium backdrop-blur pointer-events-auto max-w-sm`;
+  t.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${escapeHtml(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+function showModal(title, message, buttons) {
+  const m = document.getElementById('custom-modal');
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-message').textContent = message;
+  const actions = document.getElementById('modal-actions');
+  actions.innerHTML = '';
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.textContent = b.text;
+    btn.className = `px-4 py-2 rounded-xl text-xs font-medium transition ${b.class}`;
+    btn.onclick = () => { m.classList.add('hidden'); if (b.onClick) b.onClick(); };
+    actions.appendChild(btn);
+  });
+  m.classList.remove('hidden');
+}
+
+/* ==========================================================
+   RESTAURAR SESSÃO AO CARREGAR
+   ========================================================== */
+(async function() {
+  if (!supabaseClient) {
+    showLoginError('⚠️ Configure SUPABASE_URL e SUPABASE_ANON_KEY no script.');
+    return;
+  }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user) await bootApp(session.user);
+})();
+</script>
 </body>
 </html>
-              
